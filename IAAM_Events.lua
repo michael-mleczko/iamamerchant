@@ -73,9 +73,13 @@ function IAAM_EVENT_Handlers.CHAT_MSG_ADDON(...)
         IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_ReAdvertise")
         --
         -- Received re-advertising.
-        -- TODO: Display a GUI frame, e.g. button, so that the player sees the targeted player uses IAmAMerchant.
-        --       Button may be grayed out if the player has no items to offer.
         --
+        if Table[2] ~= 0 then
+            IAAM_VendorButtonFrame:Show()
+            if IAAM_Character.IsSoundEnabled == true then
+                PlaySound(SOUNDKIT.MONEY_FRAME_OPEN)
+            end
+        end
     end
 end
 
@@ -84,6 +88,7 @@ end
 --             PLAYER_TARGET_CHANGED()
 --
 function IAAM_EVENT_Handlers.PLAYER_TARGET_CHANGED()
+    IAAM_VendorButtonFrame:Hide()
     if IAAM_CORE_IsValidUnitID("target") then
         local Name = IAAM_CORE_GetName("target")
         if Name ~= nil then
@@ -100,7 +105,7 @@ end
 --
 function IAAM_EVENT_Handlers.VARIABLES_LOADED(event, ...)
     IAAM_DEBUG_Print(false, "Core: Variables loaded")
-    
+
     if type(IAAM_Merchant) ~= "table" then
         IAAM_Merchant = {}
     end

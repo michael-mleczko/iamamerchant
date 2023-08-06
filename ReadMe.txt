@@ -44,18 +44,22 @@ Quick Guide:
 Bug reports:
 ============
 
-    If any bugs were found, please report them with a detailed description on how to reproduce 
+    If any bugs were found, please report them with a detailed description on how to reproduce
     the bug. Bugs can be reported on the addon's curseforge and wowinterface sites or by
     messaging me on curseforge (schnodder_iaam), wowinterface (Schnodder), or reddit (NukiWolf2).
-    
+
     You bug report should asnwer following question:
-    
+
         - Describe the bug: What is not working as expected?
         - Which IAmAMerchant version are you using?
         - How can the bug be reproduced?
         - Does the bug also occur if all other addons are disabled?
         - If not: Which addons are you using?
-        
+
+Known issues:
+=============
+
+    - The button that appears when the target has items for sale has no hover and press animation.
 
 Release Notes:
 ==============
@@ -65,6 +69,8 @@ Release Notes:
         - Removed nameplate feature and vendor list as this seems to be too complicated to inplement.
           Furthermore, there would be many problems with other nameplate addons.
           Instead, the addon will only check if targeted players are offering items for sale.
+        - A button with a bag icon is shown when a player is targeted who has items for sale.
+          This button can be moved using the square in the top left corner.
     - v1.0.0
         - Brave step of going up to major version 1.0.0. The addon should be now in rather stable
           state for anyone to use. Please report any further bugs as well as how to reproduce them.

@@ -231,7 +231,7 @@ end
 --
 function IAAM_FRAME_OnShow(self)
     IAAM_DEBUG_Print(false, "IAAM_FRAME_OnShow()")
-    PlaySound(SOUNDKIT.IG_CHARACTER_INFO_OPEN);
+    PlaySound(SOUNDKIT.IG_CHARACTER_INFO_OPEN)
     local Name = self.Name
     if Name == nil then
         self:Hide()
@@ -255,8 +255,8 @@ function IAAM_FRAME_OnUpdate(self, elapsed)
     --[[
     if self.TimeSinceLastUpdate == nil then
         self.TimeSinceLastUpdate = 0
-    end  
-    self.TimeSinceLastUpdate = self.TimeSinceLastUpdate + elapsed; 	
+    end
+    self.TimeSinceLastUpdate = self.TimeSinceLastUpdate + elapsed;
 
     if (self.TimeSinceLastUpdate > IAAM_FRAME_UPDATE_INTERVAL) then
         IAAM_FRAME_Update()
@@ -271,15 +271,15 @@ end
 --
 function IAAM_FRAME_OnMouseWheel(self, value)
     IAAM_DEBUG_Print(false, "IAAM_FRAME_OnMouseWheel()")
-	if value > 0 then
-		if IAAM_PrevPageButton:IsShown() and IAAM_PrevPageButton:IsEnabled() then
-			IAAM_FRAME_PrevPageButton_OnClick(self);
-		end
-	else
-		if IAAM_NextPageButton:IsShown() and IAAM_NextPageButton:IsEnabled() then
-			IAAM_FRAME_NextPageButton_OnClick(self);
-		end	
-	end
+  if value > 0 then
+    if IAAM_PrevPageButton:IsShown() and IAAM_PrevPageButton:IsEnabled() then
+      IAAM_FRAME_PrevPageButton_OnClick(self);
+    end
+  else
+    if IAAM_NextPageButton:IsShown() and IAAM_NextPageButton:IsEnabled() then
+      IAAM_FRAME_NextPageButton_OnClick(self);
+    end
+  end
 end
 
 --============================================================
@@ -349,11 +349,11 @@ end
 function IAAM_FRAME_Update()
     ItemsForSale = IAAM_FRAME_GetItemsForSaleTable()
     IAAM_DEBUG_Print(false, "IAAM_FRAME_Update()")
-    
+
     local NumItems = IAAM_CORE_GetNumItems(ItemsForSale)
-    
+
     IAAM_Frame_Page:SetText(IAAM_FRAME_GetPageString())
-    
+
     IAAM_FRAME_HideItems()
     for i = 1, IAAM_ITEMS_PER_PAGE do
         local Index = (((IAAM_Frame.Page - 1) * IAAM_ITEMS_PER_PAGE) + i)
@@ -369,18 +369,18 @@ function IAAM_FRAME_Update()
             SetItemButtonStock(ItemFrameButton, Item.CountAvailable)
             SetItemButtonTexture(ItemFrameButton, Item.Texture)
             ItemFrameButton.price        = Item.Price
-			ItemFrameButton.extendedCost = nil
-			ItemFrameButton.name         = Item.Name
-			ItemFrameButton.link         = Item.Link
+      ItemFrameButton.extendedCost = nil
+      ItemFrameButton.name         = Item.Name
+      ItemFrameButton.link         = Item.Link
             ItemFrameButton.ItemID       = Item.ID
             ItemFrameButton.texture      = Item.Texture
-			MoneyFrame_SetMaxDisplayWidth(ItemFrameMoney, IAAM_MAX_MONEY_DISPLAY_WIDTH)
-			MoneyFrame_Update(ItemFrameMoney:GetName(), Item.Price)
-			SetMoneyFrameColor(ItemFrameMoney:GetName(), nil)
-			MerchantFrameItem_UpdateQuality(ItemFrame, Item.Link);
+      MoneyFrame_SetMaxDisplayWidth(ItemFrameMoney, IAAM_MAX_MONEY_DISPLAY_WIDTH)
+      MoneyFrame_Update(ItemFrameMoney:GetName(), Item.Price)
+      SetMoneyFrameColor(ItemFrameMoney:GetName(), nil)
+      MerchantFrameItem_UpdateQuality(ItemFrame, Item.Link);
             ItemFrameButton.showNonrefundablePrompt = false
             ItemFrameButton.hasItem = true;
-			ItemFrameButton:SetID(Index);
+      ItemFrameButton:SetID(Index);
             ItemFrame:Show()
         end
     end

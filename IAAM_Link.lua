@@ -17,7 +17,7 @@ local IAAM_ItemLinkPattern  = "(|c.-|H.-:.-|h|r)"
 --
 --             IAAM_LINK_Get()
 --
---  Extracts an item link from a string. The item will be 
+--  Extracts an item link from a string. The item will be
 --  reomved entirely from the String.
 --
 function IAAM_LINK_Get(String)
