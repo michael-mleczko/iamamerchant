@@ -41,6 +41,7 @@ function IAAM_EVENT_Handlers.CHAT_MSG_ADDON(...)
     --
     local Command = Table[1]
     if Command == IAAM_COM_COMMAND_Item then
+        IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_Item")
         --
         -- Item received
         --
@@ -53,6 +54,7 @@ function IAAM_EVENT_Handlers.CHAT_MSG_ADDON(...)
             IAAM_FRAME_Update()
         end
     elseif Command == IAAM_COM_COMMAND_Query then
+        IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_Query")
         --
         -- Query received from a player.
         -- Send your merchant information.
@@ -61,51 +63,32 @@ function IAAM_EVENT_Handlers.CHAT_MSG_ADDON(...)
             IAAM_COM_SendItem(Sender, ItemForSale.Link, ItemForSale.Count, ItemForSale.Price)
         end
     elseif Command == IAAM_COM_COMMAND_Advertise then
+        IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_Advertise")
         --
-        -- Received advertising. Add player to merchant list and re-advertise.
+        -- Received advertising. Re-advertise.
+        -- TODO: Inform player about the received advertisement?
         --
-        if IAAM_CORE_MerchantList[Sender] == nil then
-            IAAM_CORE_MerchantList[Sender] = {}
-        end
-        local ItemCount                          = Table[2]
-        IAAM_CORE_MerchantList[Sender].Name      = Sender
-        IAAM_CORE_MerchantList[Sender].ItemCount = ItemCount
         IAAM_COM_ReAdvertise(Sender)
-        IAAM_NAMEPLATE_Update(Sender)
     elseif Command == IAAM_COM_COMMAND_ReAdvertise then
+        IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_ReAdvertise")
         --
-        -- Received re-advertising. Add player to merchant.
+        -- Received re-advertising.
+        -- TODO: Display a GUI frame, e.g. button, so that the player sees the targeted player uses IAmAMerchant.
+        --       Button may be grayed out if the player has no items to offer.
         --
-        if IAAM_CORE_MerchantList[Sender] == nil then
-            IAAM_CORE_MerchantList[Sender] = {}
+    end
+end
+
+--=============================================================
+--
+--             PLAYER_TARGET_CHANGED()
+--
+function IAAM_EVENT_Handlers.PLAYER_TARGET_CHANGED()
+    if IAAM_CORE_IsValidUnitID("target") then
+        local Name = IAAM_CORE_GetName("target")
+        if Name ~= nil then
+            IAAM_COM_Advertise(Name)
         end
-        local ItemCount                          = Table[2]
-        IAAM_CORE_MerchantList[Sender].Name      = Sender
-        IAAM_CORE_MerchantList[Sender].ItemCount = ItemCount
-        IAAM_NAMEPLATE_Update(Sender)
-    end
-end
-
---=============================================================
---
---             NAME_PLATE_UNIT_ADDED()
---
-function IAAM_EVENT_Handlers.NAME_PLATE_UNIT_ADDED(UnitID)
-    IAAM_NAMEPLATE_Initialize(UnitID)
-    local Name = IAAM_CORE_GetName(UnitID)
-    if IAAM_CORE_IsValidUnitID(UnitID) then
-        local Name = IAAM_CORE_GetName(UnitID)
-        IAAM_COM_Advertise(Name)
-    end
-end
-
---=============================================================
---
---             NAME_PLATE_UNIT_REMOVED()
---
-function IAAM_EVENT_Handlers.NAME_PLATE_UNIT_REMOVED(UnitID)
-    if UnitIsPlayer(UnitID) then
-        IAAM_NAMEPLATE_RemoveIcon(UnitID)
     end
 end
 

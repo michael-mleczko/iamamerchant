@@ -75,7 +75,6 @@ function IAAM_FRAME_ItemButton_OnClick(self, button, down)
             --
             IAAM_Character.ItemsForSale[""..self.link] = nil
             IAAM_FRAME_Update()
-            IAAM_COM_ReAdvertiseAll()
         end
     elseif IsShiftKeyDown() and button == "LeftButton" then
         DEFAULT_CHAT_FRAME.editBox:Insert(self.link)
@@ -93,7 +92,6 @@ function IAAM_FRAME_AddItem_OnAccept(self)
     end
     IAAM_CORE_AddItem(IAAM_Character.ItemsForSale, IAAM_Popup_ItemLink, 0, Price, GetItemCount(IAAM_Popup_ItemLink, true, true))
     IAAM_FRAME_Update()
-    IAAM_COM_ReAdvertiseAll()
 end
 
 --============================================================
@@ -254,6 +252,7 @@ end
 --             IAAM_FRAME_OnUpdate()
 --
 function IAAM_FRAME_OnUpdate(self, elapsed)
+    --[[
     if self.TimeSinceLastUpdate == nil then
         self.TimeSinceLastUpdate = 0
     end  
@@ -263,6 +262,7 @@ function IAAM_FRAME_OnUpdate(self, elapsed)
         IAAM_FRAME_Update()
         self.TimeSinceLastUpdate = 0;
     end
+    --]]
 end
 
 --============================================================
@@ -313,7 +313,6 @@ function IAAM_FRAME_OpenTarget()
     if IAAM_Frame:IsShown() then
         IAAM_Frame:Hide()
     else
-        IAAM_Frame:Hide()
         if IAAM_CORE_IsValidUnitID("target") then
             IAAM_Merchant.ItemsForSale = {}
             local Name = IAAM_CORE_GetName("target")

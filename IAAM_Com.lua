@@ -32,8 +32,12 @@ function IAAM_COM_Init()
     --
     -- Initialize message addon channel
     --
-    C_ChatInfo.RegisterAddonMessagePrefix(IAAM_COM_Channel)
-    C_ChatInfo.IsAddonMessagePrefixRegistered(IAAM_COM_Channel)
+    if C_ChatInfo.IsAddonMessagePrefixRegistered(IAAM_COM_Channel) == false then
+        C_ChatInfo.RegisterAddonMessagePrefix(IAAM_COM_Channel)
+        if C_ChatInfo.IsAddonMessagePrefixRegistered(IAAM_COM_Channel) == false then
+            IAAM_DEBUG_Print(false, "IAAM_COM_Init: Could not register message prefix.")
+        end
+    end
 end
 
 --============================================================
@@ -42,7 +46,9 @@ end
 --
 function IAAM_COM_SendQuery(UnitName)
     IAAM_DEBUG_Print(false, "IAAM_COM_SendQuery("..UnitName..")")
-    C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_Query, "WHISPER", UnitName)
+    if C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_Query, "WHISPER", UnitName) == false then
+        IAAM_DEBUG_Print(false, "IAAM_COM_SendQuery: Could not send addon message.")
+    end
 end
 
 --============================================================
@@ -84,16 +90,5 @@ function IAAM_COM_ReAdvertise(UnitName)
     --
     if IAAM_CORE_IsValidName(UnitName) then
         C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_ReAdvertise.." "..IAAM_CORE_GetNumItems(IAAM_Character.ItemsForSale), "WHISPER", UnitName)
-    end
-end
-
---============================================================
---
---             IAAM_COM_ReAdvertiseAll()
---
-function IAAM_COM_ReAdvertiseAll()
-    IAAM_DEBUG_Print(false, "ReAdvertiseAll()")
-    for _, v in pairs(IAAM_CORE_MerchantList) do
-        IAAM_COM_ReAdvertise(v.Name)
     end
 end

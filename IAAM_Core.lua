@@ -6,18 +6,6 @@
 --
 IAAM_VERSION = "1.0.0"
 
---
--- A list with all merchants met in his session.
--- Used to track merchants in order to display
--- merchant marks next to their nameplates.
---
--- As soon as a player's nameplate is visible,
--- the player will be recorded in this table.
--- Then an advertise message is sent to that player
--- to determine whether it's a merchant and if the
--- merchant has any information to display.
---
-IAAM_CORE_MerchantList      = {}
 BINDING_HEADER_IAAM         = "IAmAMerchant"
 BINDING_NAME_ADDONS         = "Addons"
 

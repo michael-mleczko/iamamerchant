@@ -63,7 +63,6 @@ function SlashCmdList.IAAMSlashCommand(Message, EditBox)
         -- Add item to list characters for sale list
         --
         IAAM_CORE_AddItem(IAAM_Character.ItemsForSale, Table.Link, Table[2], Table[3], GetItemCount(Table.Link, true, true))
-        IAAM_COM_ReAdvertiseAll()
         --
         -- If own merchant window is open, add it to targets for sale list and update the window
         -- so that the added item will be displayed instantly
@@ -74,13 +73,10 @@ function SlashCmdList.IAAMSlashCommand(Message, EditBox)
         print("IAmAMerchant: Item "..Table[2].." added.")
     elseif Table[1] == "on" then
         IAAM_Character.IsEnabled = true
-        IAAM_COM_ReAdvertiseAll()
     elseif Table[1] == "off" then
         IAAM_Character.IsEnabled = false
-        IAAM_NAMEPLATE_HideAll()
     elseif Table[1] == "clear" then
         IAAM_Character.ItemsForSale = {}
-        IAAM_COM_ReAdvertiseAll()
     elseif Table[1] == "help" then
         print(" ")
         print("IAmAMerchant (v"..IAAM_VERSION..")")
