@@ -1,9 +1,0 @@
-## Interface: 80200
-## Title: IAmAMerchant Retail (v0.1.0)
-## Notes: Use "/iaam help" for further information.
-## Version: 000100
-## SavedVariables: IAAM_Account
-## SavedVariablesPerCharacter: IAAM_Character
-## Author: NukiWolf2
-
-IAmAMerchant.xml

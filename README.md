@@ -2,28 +2,26 @@
 
 Displays your items for sale in a merchant window to other players.
 
-Add the items that you want to sell by using the "/iaam add" command.
-Remove an item from that list by targeting yourself and right clicking on the item that you want to remove.
+## Keyboard Bindings
+- Open target merchant window (recommended shortcut: F6)
+- Open your merchant window (recommended shortcut: F7)
 
-/iaam [Linen Cloth] 1 199
+## Usage
+Add the items that you want to sell by using the "/iaam add" command or by drag'n dropping the item into your merchant window.<br>
+Remove an item by opening your merchant window and right clicking on the item that you want to remove.
 
+## Slash Commands
+
+### add
+Adds an item to your list with items for sale.
+#### Syntax
+`/iaam add <item_link> <count> <price_for_given_count>`
+#### Example
 This example command adds linen cloth for 1 silver 99 copper for each piece of linen cloth to your list.
 The item link is inserted by shift + left clicking on the item in order to create the item link in your chat.
+`/iaam add [Linen Cloth] 1 199`
 
-Slash commands:
-
-/iaam add <item_link> <count> <price_for_given_count>
-
-Adds an item to your sale list.
-
-/iaam on
-
-IAAM will open the merchant window if a player with this addon is targeted
-
-/iaam off
-
-IAAM won't open the merchant windows. Can be used in dungeons and raids, or while leveling. Other players with this addon will still be able to view your items if this command is used.
-
-/iaam clear
-
-Clears all items from your list.
+### clear
+Clears all items from your list with items for sale.
+#### Syntax
+`/iaam clear`
