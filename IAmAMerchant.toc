@@ -1,0 +1,15 @@
+## Interface: 11404
+## Title: IAmAMerchant Classic (v2.0.0)
+## Notes: Use "/iaam help" for further information.
+## Version: 020000
+## SavedVariables: IAAM_Account
+## SavedVariablesPerCharacter: IAAM_Character
+## Author: NukiWolf2
+
+IAAM_Com.lua
+IAAM_Debug.lua
+IAAM_Events.lua
+IAAM_Link.lua
+IAAM_Slash.lua
+IAAM_Core.lua
+IAmAMerchant.xml

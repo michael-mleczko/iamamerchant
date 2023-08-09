@@ -1,0 +1,8 @@
+<Bindings>
+    <Binding category="ADDONS" name="Open target merchant window" header="IAAM">
+        IAAM_FRAME_OpenTarget()
+    </Binding>
+    <Binding category="ADDONS" name="Open your merchant window">
+        IAAM_FRAME_OpenCharacter()
+    </Binding>
+</Bindings>
