@@ -26,7 +26,6 @@ function SlashCmdList.IAAMSlashCommand(Message, EditBox)
     -- Check if table is empty
     --
     if IAAM_CORE_GetNumItems(Table) == 0 then
-        print("IAmAMerchant: Wrong command!")
         IAAM_CORE_PrintCommands()
         return
     end
@@ -70,7 +69,7 @@ function SlashCmdList.IAAMSlashCommand(Message, EditBox)
         if IAAM_Frame:IsShown() then
             IAAM_FRAME_Update()
         end
-        print("IAmAMerchant: Item "..Table[2].." added.")
+        print("IAmAMerchant: Item "..Table.Link.." added.")
     elseif Table[1] == "on" then
         IAAM_Character.IsEnabled = true
     elseif Table[1] == "off" then
