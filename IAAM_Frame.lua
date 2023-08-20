@@ -316,7 +316,7 @@ function IAAM_FRAME_OpenPlayer(Name)
     if IAAM_CORE_IsValidName(Name) then
         IAAM_Merchant.ItemsForSale = {}
         IAAM_Frame.Name = Name
-        IAAM_COM_SendRequest(Name)
+        IAAM_COM_SendRequestItems(Name)
     end
 end
 
@@ -338,7 +338,7 @@ function IAAM_FRAME_OpenTarget()
             IAAM_Merchant.ItemsForSale = {}
             if Name ~= nil then
                 IAAM_Frame.Name = Name
-                IAAM_COM_SendRequest(Name)
+                IAAM_COM_SendRequestItems(Name)
             end
         end
     end

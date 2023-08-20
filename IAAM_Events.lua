@@ -47,8 +47,8 @@ function IAAM_EVENT_Handlers.CHAT_MSG_ADDON(...)
         -- Table[1] contains the communication command
         --
         local Command = Table[1]
-        if Command == IAAM_COM_COMMAND_Item then
-            IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_Item")
+        if Command == IAAM_COM_COMMAND_RequestItemsResponse then
+            IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_RequestItemsResponse")
             --
             -- Item received
             --
@@ -60,18 +60,23 @@ function IAAM_EVENT_Handlers.CHAT_MSG_ADDON(...)
                 end
                 IAAM_FRAME_Update()
             end
-        elseif Command == IAAM_COM_COMMAND_Request then
-            IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_Request")
+        elseif Command == IAAM_COM_COMMAND_RequestItems then
+            IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_RequestItems")
             --
             -- Request item list received from a player.
             -- Send your merchant information.
             --
-            IAAM_COM_Offer(Target)
             for Key, ItemForSale in pairs(IAAM_Character.ItemsForSale) do
                 IAAM_COM_SendItem(Target, ItemForSale.Link, ItemForSale.Count, ItemForSale.Price)
             end
-        elseif Command == IAAM_COM_COMMAND_Offer then
-            IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_Offer")
+        elseif Command == IAAM_COM_COMMAND_CheckPlayer then
+            IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_CheckPlayer")
+            --
+            -- Received check whether you have items for sale. Send response.
+            --
+            IAAM_COM_CheckPlayerResponse(Target)
+        elseif Command == IAAM_COM_COMMAND_CheckPlayerResponse then
+            IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_CheckPlayer")
             --
             -- Received re-advertising.
             --
@@ -99,7 +104,7 @@ function IAAM_EVENT_Handlers.PLAYER_TARGET_CHANGED()
     if IAAM_CORE_IsValidUnitID("target") then
         local Name = IAAM_CORE_GetName("target")
         if Name ~= nil then
-            IAAM_COM_Offer(Name)
+            IAAM_COM_CheckPlayer(Name)
         end
     end
 end

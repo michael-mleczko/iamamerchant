@@ -1,7 +1,7 @@
 ## Interface: 11404
-## Title: IAmAMerchant Classic (v2.0.0)
+## Title: IAmAMerchant Classic (v2.1.0)
 ## Notes: Use "/iaam help" for further information.
-## Version: 020000
+## Version: 020100
 ## SavedVariables: IAAM_Account
 ## SavedVariablesPerCharacter: IAAM_Character
 ## Author: NukiWolf2

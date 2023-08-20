@@ -13,11 +13,12 @@ local IAAM_COM_Channel = "IAAM_COM_Channel"
 --             Global variables
 --
 
-IAAM_COM_COMMAND_Offer                  = "a"
-IAAM_COM_COMMAND_Request                = "b"
-IAAM_COM_COMMAND_QueryBroadcast         = "c"
-IAAM_COM_COMMAND_QueryBroadcastResponse = "d"
-IAAM_COM_COMMAND_Item                   = "e"
+IAAM_COM_COMMAND_CheckPlayer            = "a"
+IAAM_COM_COMMAND_CheckPlayerResponse    = "b"
+IAAM_COM_COMMAND_RequestItems           = "c"
+IAAM_COM_COMMAND_RequestItemsResponse   = "d"
+IAAM_COM_COMMAND_QueryBroadcast         = "e"
+IAAM_COM_COMMAND_QueryBroadcastResponse = "f"
 
 --============================================================
 --============================================================
@@ -43,12 +44,12 @@ end
 
 --============================================================
 --
---             IAAM_COM_SendRequest()
+--             IAAM_COM_SendRequestItems()
 --
-function IAAM_COM_SendRequest(UnitName)
-    IAAM_DEBUG_Print(false, "IAAM_COM_SendRequest("..UnitName..")")
-    if C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_Request, "WHISPER", UnitName) == false then
-        IAAM_DEBUG_Print(false, "IAAM_COM_SendRequest: Could not send addon message.")
+function IAAM_COM_SendRequestItems(UnitName)
+    IAAM_DEBUG_Print(false, "IAAM_COM_SendRequestItems("..UnitName..")")
+    if C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_RequestItems, "WHISPER", UnitName) == false then
+        IAAM_DEBUG_Print(false, "IAAM_COM_SendRequestItems: Could not send addon message.")
     end
 end
 
@@ -58,21 +59,35 @@ end
 --
 function IAAM_COM_SendItem(UnitName, Link, Count, Price)
     IAAM_DEBUG_Print(false, "IAAM_COM_SendItem("..UnitName..", "..Link..", "..Count..", "..Price..")")
-    local DataString = IAAM_COM_COMMAND_Item.." "..Link.." "..Count.." "..Price.." "..GetItemCount(Link, true, true)
+    local DataString = IAAM_COM_COMMAND_RequestItemsResponse.." "..Link.." "..Count.." "..Price.." "..GetItemCount(Link, true, true)
     C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, DataString, "WHISPER", UnitName)
 end
 
 --============================================================
 --
---             IAAM_COM_Offer()
+--             IAAM_COM_CheckPlayer()
 --
-function IAAM_COM_Offer(UnitName)
-    IAAM_DEBUG_Print(false, "IAAM_COM_Offer("..UnitName..") NumItems: ", IAAM_CORE_GetNumItems(IAAM_Character.ItemsForSale))
+function IAAM_COM_CheckPlayer(UnitName)
+    IAAM_DEBUG_Print(false, "IAAM_COM_CheckPlayer("..UnitName..") NumItems: ", IAAM_CORE_GetNumItems(IAAM_Character.ItemsForSale))
     --
-    -- Send your merchant information to the player request
+    -- Check if the player is a merchant
     --
     if IAAM_CORE_IsValidName(UnitName) then
-        C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_Offer.." "..IAAM_CORE_GetNumItems(IAAM_Character.ItemsForSale), "WHISPER", UnitName)
+        C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_CheckPlayer, "WHISPER", UnitName)
+    end
+end
+
+--============================================================
+--
+--             IAAM_COM_CheckPlayerResponse()
+--
+function IAAM_COM_CheckPlayerResponse(UnitName)
+    IAAM_DEBUG_Print(false, "IAAM_COM_CheckPlayerResponse("..UnitName..") NumItems: ", IAAM_CORE_GetNumItems(IAAM_Character.ItemsForSale))
+    --
+    -- Check if the player is a merchant
+    --
+    if IAAM_CORE_IsValidName(UnitName) then
+        C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_CheckPlayerResponse.." "..IAAM_CORE_GetNumItems(IAAM_Character.ItemsForSale), "WHISPER", UnitName)
     end
 end
 
