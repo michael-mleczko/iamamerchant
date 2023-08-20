@@ -13,3 +13,4 @@ IAAM_Link.lua
 IAAM_Slash.lua
 IAAM_Core.lua
 IAmAMerchant.xml
+IAmAMerchant_MerchantTracker.xml

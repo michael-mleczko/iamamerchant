@@ -25,6 +25,7 @@ Quick Guide:
       the left. Suggested keybindings are:
         - Open target vendor window: "F6"
         - Open your vendor window: "F7"
+        - Open merchant tracker: "F5" (overwrites another keybinding)
     - Press "F7" to open your merchant window.
     - Drag and drop an item (for instance from your bag) into the merchant window.
     - A dialogue window will open. Enter the copper price per unit for your item.
@@ -34,10 +35,11 @@ Quick Guide:
     - You can remove items from your list by right clicking on them. If you want to remove all
       items, you can also type "/iaam clear" into the chat.
     - When other players are targeted, the addon determines whether the targeted player uses
-      IAmAMerchant and display an "Inspect Vendor" button if so. The button is grayed out if
-      the player has no items to offer.
-    - Press the button or use the shortcut for opening the vendor window in order to inspect
-      the items offered for sale.
+      IAmAMerchant and displays an "Inspect Vendor" button if so. Press the button or use the
+      shortcut for opening the vendor window in order to inspect the items offered for sale.
+    - Alternatively, opent the merchant tracker and query any merchants by clicking on the
+      "Query Surrounding" or "Query Guild" buttons which will show a list will show any players
+      near you or in your guild with items for sale.
     - Get in contact with the player to buy items. There will be no automated buying/selling
       feature. Interaction and communication with other players is encouraged!
 
@@ -64,6 +66,13 @@ Known issues:
 Release Notes:
 ==============
 
+    - v2.1.0
+        - Added the "Merchant Tracker" windows which allows to search for for players near you or
+          in your guild who have items for sale. Any player found will be shown in a list. The list
+          item can then be clicked on to view the player's items for sale.
+        - Some changes and optimizations regarding communication. Unfortunately, this will break
+          compatibility with previous versions. However, since there aren't many users yet, and
+          since there's no reason to not update the addon, this should be no issue.
     - v2.0.0
         After years I plan to continue this addon, as I want to use it for WoW Classic Hardcore.
         - Removed nameplate feature and vendor list as this seems to be too complicated to inplement.

@@ -13,10 +13,11 @@ local IAAM_COM_Channel = "IAAM_COM_Channel"
 --             Global variables
 --
 
-IAAM_COM_COMMAND_Advertise   = "A"
-IAAM_COM_COMMAND_ReAdvertise = "B"
-IAAM_COM_COMMAND_Query       = "Q"
-IAAM_COM_COMMAND_Item        = "I"
+IAAM_COM_COMMAND_Offer                  = "a"
+IAAM_COM_COMMAND_Request                = "b"
+IAAM_COM_COMMAND_QueryBroadcast         = "c"
+IAAM_COM_COMMAND_QueryBroadcastResponse = "d"
+IAAM_COM_COMMAND_Item                   = "e"
 
 --============================================================
 --============================================================
@@ -42,12 +43,12 @@ end
 
 --============================================================
 --
---             IAAM_COM_SendQuery()
+--             IAAM_COM_SendRequest()
 --
-function IAAM_COM_SendQuery(UnitName)
-    IAAM_DEBUG_Print(false, "IAAM_COM_SendQuery("..UnitName..")")
-    if C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_Query, "WHISPER", UnitName) == false then
-        IAAM_DEBUG_Print(false, "IAAM_COM_SendQuery: Could not send addon message.")
+function IAAM_COM_SendRequest(UnitName)
+    IAAM_DEBUG_Print(false, "IAAM_COM_SendRequest("..UnitName..")")
+    if C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_Request, "WHISPER", UnitName) == false then
+        IAAM_DEBUG_Print(false, "IAAM_COM_SendRequest: Could not send addon message.")
     end
 end
 
@@ -63,32 +64,45 @@ end
 
 --============================================================
 --
---             IAAM_COM_Advertise()
+--             IAAM_COM_Offer()
 --
-function IAAM_COM_Advertise(UnitName)
-    IAAM_DEBUG_Print(false, "IAAM_COM_Advertise("..UnitName..") NumItems: ", IAAM_CORE_GetNumItems(IAAM_Character.ItemsForSale))
+function IAAM_COM_Offer(UnitName)
+    IAAM_DEBUG_Print(false, "IAAM_COM_Offer("..UnitName..") NumItems: ", IAAM_CORE_GetNumItems(IAAM_Character.ItemsForSale))
     --
-    -- Advertise and add your number of items for sale.
-    -- If no items are for sale, you won't have a merchant mark for
-    -- other players, as we only want to mark players who are selling
-    -- something. If one adds an item, all players on the mercahtn list
-    -- will be readvertised with the new items for sale number.
+    -- Send your merchant information to the player request
     --
     if IAAM_CORE_IsValidName(UnitName) then
-        C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_Advertise.." "..IAAM_CORE_GetNumItems(IAAM_Character.ItemsForSale), "WHISPER", UnitName)
+        C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_Offer.." "..IAAM_CORE_GetNumItems(IAAM_Character.ItemsForSale), "WHISPER", UnitName)
     end
 end
 
 --============================================================
 --
---             IAAM_COM_ReAdvertise()
+--             IAAM_COM_QueryBroadcastYell()
 --
-function IAAM_COM_ReAdvertise(UnitName)
-    IAAM_DEBUG_Print(false, "IAAM_COM_ReAdvertise("..UnitName..") NumItems: ", IAAM_CORE_GetNumItems(IAAM_Character.ItemsForSale))
-    --
-    -- See IAAM_COM_Advertise
-    --
-    if IAAM_CORE_IsValidName(UnitName) then
-        C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_ReAdvertise.." "..IAAM_CORE_GetNumItems(IAAM_Character.ItemsForSale), "WHISPER", UnitName)
+function IAAM_COM_QueryBroadcastYell()
+    IAAM_DEBUG_Print(false, "IAAM_COM_QueryBroadcastYell()")
+    if IAAM_CORE_GetNumItems(IAAM_Character.ItemsForSale) > 0 then
+        C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_QueryBroadcast, "YELL")
     end
+end
+
+--============================================================
+--
+--             IAAM_COM_QueryBroadcastGuild()
+--
+function IAAM_COM_QueryBroadcastGuild()
+    IAAM_DEBUG_Print(false, "IAAM_COM_QueryBroadcastGuild()")
+    if IAAM_CORE_GetNumItems(IAAM_Character.ItemsForSale) > 0 then
+        C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_QueryBroadcast, "GUILD")
+    end
+end
+
+--============================================================
+--
+--             IAAM_COM_QueryBroadcastResponse()
+--
+function IAAM_COM_QueryBroadcastResponse(Target)
+    IAAM_DEBUG_Print(false, "IAAM_COM_QueryBroadcastResponse()")
+    C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_QueryBroadcastResponse.." "..IAAM_CORE_GetNumItems(IAAM_Character.ItemsForSale), "WHISPER", Target)
 end

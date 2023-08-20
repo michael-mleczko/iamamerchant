@@ -3,8 +3,12 @@
 Displays your items for sale in a merchant window to other players.
 
 ## Keyboard Bindings
-- Open target merchant window (recommended shortcut: F6)
-- Open your merchant window (recommended shortcut: F7)
+- Open target merchant window
+  - Opens the merchant window of the current target, if the targets has some items for sale
+- Open your merchant window
+  - Shows your own items for sale
+- Open merchant tracker
+  - Shows a list with players in your surrounding or your guild who have items for sale
 
 ## Usage
 Add the items that you want to sell by using the "/iaam add" command or by drag'n dropping the item into your merchant window.<br>

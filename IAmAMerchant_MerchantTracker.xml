@@ -1,0 +1,147 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+
+	<Script file="IAAM_MerchantTracker.lua"/>
+
+    <!-- Merchant Tracker -->
+    
+    <!-- Scroll List Button Template: Buttons used in the scroll list. -->
+	<Button name="IAAM_MT_ScrollListButtonTemplate" mixin="IAAM_MT_ScrollListButtonMixin" registerForClicks="AnyUp" hidden="false" virtual="true">
+		<Size y="20"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture>
+					<Color r=".1" g=".1" b=".1" a="1"/>
+				</Texture>
+				<Texture parentKey="Alternate" hidden="true" alphaMode="ADD">
+					<Color r=".02" g=".02" b=".02" a="1"/>
+				</Texture>
+				<Texture parentKey="MouseoverOverlay" hidden="true" alphaMode="ADD">
+					<Color r=".1" g=".1" b=".1" a="1"/>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString parentKey="RightLabel" inherits="GameFontHighlightSmall" justifyH="RIGHT">
+					<Size y="20"/>
+					<Anchors>
+						<Anchor point="RIGHT" x="-5"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="LeftLabel" inherits="GameFontHighlightSmall" wordwrap="false" justifyH="LEFT">
+					<Size y="20"/>
+					<Anchors>
+						<Anchor point="LEFT" x="5"/>
+						<Anchor point="RIGHT" relativeKey="$parent.RightLabel" relativePoint="LEFT" x="-5"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnClick method="OnClick"/>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+		</Scripts>
+	</Button>
+
+    <!-- Menu Button Template: Buttons used below the title bar. -->
+	<Button name="IAAM_MT_MenuButtonTemplate" mixin="IAAM_MT_MenuButtonMixin" virtual="true">
+		<Size x="132" y="20"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="NormalTexture" atlas="auctionhouse-nav-button" useAtlasSize="false">
+					<Size x="136" y="32"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-2" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="BORDER">
+				<Texture parentKey="HighlightTexture" atlas="auctionhouse-nav-button-highlight" hidden="true">
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<Texture parentKey="MouseoverOverlay" hidden="true" atlas="auctionhouse-nav-button" useAtlasSize="false" alphaMode="ADD"/>
+				<FontString parentKey="Label" inherits="GameFontHighlight">
+					<Size x="180" y="16"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+		</Scripts>
+	</Button>
+
+    <Frame name="IAAM_MT" mixin="IAAM_MT_Mixin" inherits="ButtonFrameTemplate" parent="UIParent" toplevel="true" movable="true" resizable="true" enableMouse="true" clampedToScreen="true" hidden="true">
+		<Size x="350" y="250"/>
+		<Anchors>
+			<Anchor point="CENTER"/>
+		</Anchors>
+        <ResizeBounds>
+            <minResize x="350" y="250"/>
+        </ResizeBounds>
+        <Frames>
+            <!-- Title Bar -->
+			<Frame parentKey="TitleBar" inherits="PanelDragBarTemplate">
+				<Size y="32"/>
+				<Anchors>
+					<Anchor point="TOPLEFT"/>
+					<Anchor point="TOPRIGHT"/>
+				</Anchors>
+				<Layers>
+				</Layers>
+                <Frames>
+                    <Button parentKey="QueryYellButton" mixin="QueryYellMixin" inherits="IAAM_MT_MenuButtonTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" x="10"/>
+                        </Anchors>
+                        <Scripts>
+                            <OnClick method="OnClick"/>
+                        </Scripts>
+                    </Button>
+                    <Button parentKey="QueryZoneButton" mixin="QueryZoneMixin" inherits="IAAM_MT_MenuButtonTemplate">
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.QueryYellButton" relativePoint="RIGHT" x="10"/>
+                        </Anchors>
+                        <Scripts>
+                            <OnClick method="OnClick"/>
+                        </Scripts>
+                    </Button>
+                </Frames>
+			</Frame>
+            <!-- Resize Button -->
+			<Button parentKey="ResizeButton" inherits="PanelResizeButtonTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
+				</Anchors>
+			</Button>
+            <!-- Scroll Scroll List -->
+			<Frame parentKey="ScrollList">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.TitleBar" relativePoint="BOTTOMLEFT" x="8" y="-32"/>
+					<Anchor point="BOTTOMRIGHT" x="-9" y="28"/>
+				</Anchors>
+				<Frames>
+					<EventFrame parentKey="ScrollBar" inherits="MinimalScrollBar">
+						<Anchors>
+                            <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-8" y="-5"/>
+                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" y="5"/>
+						</Anchors>
+					</EventFrame>
+					<ScrollFrame parentKey="ScrollBox" inherits="WowScrollBoxList" frameStrata="HIGH">
+						<Anchors>
+                            <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" y="-4" x="4"/>
+                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent.ScrollBar.Forward" relativePoint="BOTTOMLEFT" x="-3"/>
+						</Anchors>
+					</ScrollFrame>
+				</Frames>
+			</Frame>
+        </Frames>
+    </Frame>
+
+</Ui>

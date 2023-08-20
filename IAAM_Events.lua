@@ -23,62 +23,69 @@ end
 function IAAM_EVENT_Handlers.CHAT_MSG_ADDON(...)
     local Prefix, Data, Channel, Sender, Target, _, _, Name, _  = ...;
     --
-    -- Remove realm from sender name in Classic WoW
+    -- Handle YELL
     --
-    if IAAM_TocVersion < 80000 then
-        Sender = IAAM_CORE_RemoveRealmFromName(Sender)
+    if Channel == "YELL" or Channel == "GUILD" then
+        if Data == IAAM_COM_COMMAND_QueryBroadcast then
+            IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_QueryBroadcast")
+            IAAM_COM_QueryBroadcastResponse(Target)
+        end
     end
     --
-    -- Extract link and remove link string from data string
+    -- Handle WHISPER
     --
-    local Link, Data = IAAM_LINK_Get(Data)
-    --
-    -- Create a table with all arguments
-    --
-    local Table = IAAM_CORE_GetData(Data)
-    --
-    -- Table[1] contains the communication command
-    --
-    local Command = Table[1]
-    if Command == IAAM_COM_COMMAND_Item then
-        IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_Item")
+    if Channel == "WHISPER" then
         --
-        -- Item received
+        -- Extract link and remove link string from data string
         --
-        if Sender == IAAM_Frame.Name then
-            --                                               Link  Count     Price     CountAvailable
-            IAAM_CORE_AddItem(IAAM_Merchant.ItemsForSale, Link, Table[2], Table[3], Table[4])
-            if IAAM_Frame:IsShown() == false then
-                IAAM_Frame:Show()
+        local Link, Data = IAAM_LINK_Get(Data)
+        --
+        -- Create a table with all arguments
+        --
+        local Table = IAAM_CORE_GetData(Data)
+        --
+        -- Table[1] contains the communication command
+        --
+        local Command = Table[1]
+        if Command == IAAM_COM_COMMAND_Item then
+            IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_Item")
+            --
+            -- Item received
+            --
+            if Target == IAAM_Frame.Name then
+                --                                            Link  Count     Price     CountAvailable
+                IAAM_CORE_AddItem(IAAM_Merchant.ItemsForSale, Link, Table[2], Table[3], Table[4])
+                if IAAM_Frame:IsShown() == false then
+                    IAAM_Frame:Show()
+                end
+                IAAM_FRAME_Update()
             end
-            IAAM_FRAME_Update()
-        end
-    elseif Command == IAAM_COM_COMMAND_Query then
-        IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_Query")
-        --
-        -- Query received from a player.
-        -- Send your merchant information.
-        --
-        for Key, ItemForSale in pairs(IAAM_Character.ItemsForSale) do
-            IAAM_COM_SendItem(Sender, ItemForSale.Link, ItemForSale.Count, ItemForSale.Price)
-        end
-    elseif Command == IAAM_COM_COMMAND_Advertise then
-        IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_Advertise")
-        --
-        -- Received advertising. Re-advertise.
-        -- TODO: Inform player about the received advertisement?
-        --
-        IAAM_COM_ReAdvertise(Sender)
-    elseif Command == IAAM_COM_COMMAND_ReAdvertise then
-        IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_ReAdvertise")
-        --
-        -- Received re-advertising.
-        --
-        if Table[2] ~= 0 then
-            IAAM_VendorButtonFrame:Show()
-            if IAAM_Character.IsSoundEnabled == true then
-                PlaySound(SOUNDKIT.MONEY_FRAME_OPEN)
+        elseif Command == IAAM_COM_COMMAND_Request then
+            IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_Request")
+            --
+            -- Request item list received from a player.
+            -- Send your merchant information.
+            --
+            IAAM_COM_Offer(Target)
+            for Key, ItemForSale in pairs(IAAM_Character.ItemsForSale) do
+                IAAM_COM_SendItem(Target, ItemForSale.Link, ItemForSale.Count, ItemForSale.Price)
             end
+        elseif Command == IAAM_COM_COMMAND_Offer then
+            IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_Offer")
+            --
+            -- Received re-advertising.
+            --
+            if Table[2] ~= 0 then
+                IAAM_VendorButtonFrame:Show()
+                if IAAM_Character.IsSoundEnabled == true then
+                    PlaySound(SOUNDKIT.MONEY_FRAME_OPEN)
+                end
+            end
+        elseif Command == IAAM_COM_COMMAND_QueryBroadcastResponse then
+            IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_QueryBroadcastResponse")
+            IAAM_MT.DataTable:InsertTable({
+                { Player = Target, NumItems = Table[2] },
+            })
         end
     end
 end
@@ -92,7 +99,7 @@ function IAAM_EVENT_Handlers.PLAYER_TARGET_CHANGED()
     if IAAM_CORE_IsValidUnitID("target") then
         local Name = IAAM_CORE_GetName("target")
         if Name ~= nil then
-            IAAM_COM_Advertise(Name)
+            IAAM_COM_Offer(Name)
         end
     end
 end
@@ -131,6 +138,10 @@ function IAAM_EVENT_Handlers.VARIABLES_LOADED(event, ...)
         IAAM_Character.IsSoundEnabled = false
     end
     IAAM_COM_Init()
+    --
+    -- Make frames close on ESC
+    --
     tinsert(UISpecialFrames, "IAAM_Frame")
+    tinsert(UISpecialFrames, "IAAM_MT")
     print("IAmAMerchant (v"..IAAM_VERSION..")")
 end

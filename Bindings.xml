@@ -5,4 +5,7 @@
     <Binding category="ADDONS" name="Open your merchant window">
         IAAM_FRAME_OpenCharacter()
     </Binding>
+    <Binding category="ADDONS" name="Open merchant tracker">
+        IAAM_MT:SetShown(not IAAM_MT:IsShown())
+    </Binding>
 </Bindings>

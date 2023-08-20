@@ -174,7 +174,6 @@ end
 function IAAM_FRAME_OnHide(self)
     IAAM_DEBUG_Print(false, "IAAM_FRAME_OnHide()")
     PlaySound(SOUNDKIT.IG_CHARACTER_INFO_CLOSE);
-    IAAM_Frame.Name = ""
 end
 
 --============================================================
@@ -305,22 +304,41 @@ end
 
 --============================================================
 --
+--             IAAM_FRAME_OpenPlayer()
+--
+function IAAM_FRAME_OpenPlayer(Name)
+    IAAM_DEBUG_Print(false, "IAAM_FRAME_OpenPlayer()")
+    -- Close merchant window if open
+    if IAAM_Frame:IsShown() == true then
+        IAAM_Frame:Hide()
+    end
+    -- If name valid, open new merchant window, no matter if it's the same player
+    if IAAM_CORE_IsValidName(Name) then
+        IAAM_Merchant.ItemsForSale = {}
+        IAAM_Frame.Name = Name
+        IAAM_COM_SendRequest(Name)
+    end
+end
+
+--============================================================
+--
 --             IAAM_FRAME_OpenTarget()
 --
 function IAAM_FRAME_OpenTarget()
     IAAM_DEBUG_Print(false, "IAAM_FRAME_OpenTarget()")
-    IAAM_CORE_UpdateList()
-    if IAAM_Frame:IsShown() then
+    -- Close merchant window if open
+    local MerchantWindowIsShown = IAAM_Frame:IsShown()
+    if MerchantWindowIsShown == true then
         IAAM_Frame:Hide()
-    else
-        if IAAM_CORE_IsValidUnitID("target") then
+    end
+    -- Open merchant only if it's not the same target again => Toggle
+    local Name = IAAM_CORE_GetName("target")
+    if IAAM_CORE_IsValidName(Name) then
+        if not (MerchantWindowIsShown == true and Name == IAAM_Frame.Name) then
             IAAM_Merchant.ItemsForSale = {}
-            local Name = IAAM_CORE_GetName("target")
-            if IAAM_CORE_IsValidName(Name) then
+            if Name ~= nil then
                 IAAM_Frame.Name = Name
-                if Name ~= nil then
-                    IAAM_COM_SendQuery(Name)
-                end
+                IAAM_COM_SendRequest(Name)
             end
         end
     end
@@ -369,18 +387,18 @@ function IAAM_FRAME_Update()
             SetItemButtonStock(ItemFrameButton, Item.CountAvailable)
             SetItemButtonTexture(ItemFrameButton, Item.Texture)
             ItemFrameButton.price        = Item.Price
-      ItemFrameButton.extendedCost = nil
-      ItemFrameButton.name         = Item.Name
-      ItemFrameButton.link         = Item.Link
+            ItemFrameButton.extendedCost = nil
+            ItemFrameButton.name         = Item.Name
+            ItemFrameButton.link         = Item.Link
             ItemFrameButton.ItemID       = Item.ID
             ItemFrameButton.texture      = Item.Texture
-      MoneyFrame_SetMaxDisplayWidth(ItemFrameMoney, IAAM_MAX_MONEY_DISPLAY_WIDTH)
-      MoneyFrame_Update(ItemFrameMoney:GetName(), Item.Price)
-      SetMoneyFrameColor(ItemFrameMoney:GetName(), nil)
-      MerchantFrameItem_UpdateQuality(ItemFrame, Item.Link);
+            MoneyFrame_SetMaxDisplayWidth(ItemFrameMoney, IAAM_MAX_MONEY_DISPLAY_WIDTH)
+            MoneyFrame_Update(ItemFrameMoney:GetName(), Item.Price)
+            SetMoneyFrameColor(ItemFrameMoney:GetName(), nil)
+            MerchantFrameItem_UpdateQuality(ItemFrame, Item.Link);
             ItemFrameButton.showNonrefundablePrompt = false
             ItemFrameButton.hasItem = true;
-      ItemFrameButton:SetID(Index);
+            ItemFrameButton:SetID(Index);
             ItemFrame:Show()
         end
     end
