@@ -5,20 +5,9 @@
     <!-- Merchant Tracker -->
     
     <!-- Scroll List Button Template: Buttons used in the scroll list. -->
-	<Button name="IAAM_MT_ScrollListButtonTemplate" mixin="IAAM_MT_ScrollListButtonMixin" registerForClicks="AnyUp" hidden="false" virtual="true">
+	<Button name="IAAM_MT_ScrollListButtonTemplate" inherits="BackdropTemplate" mixin="IAAM_MT_ScrollListButtonMixin" registerForClicks="AnyUp" hidden="false" virtual="true">
 		<Size y="20"/>
 		<Layers>
-			<Layer level="BACKGROUND">
-				<Texture>
-					<Color r=".1" g=".1" b=".1" a="1"/>
-				</Texture>
-				<Texture parentKey="Alternate" hidden="true" alphaMode="ADD">
-					<Color r=".02" g=".02" b=".02" a="1"/>
-				</Texture>
-				<Texture parentKey="MouseoverOverlay" hidden="true" alphaMode="ADD">
-					<Color r=".1" g=".1" b=".1" a="1"/>
-				</Texture>
-			</Layer>
 			<Layer level="OVERLAY">
 				<FontString parentKey="RightLabel" inherits="GameFontHighlightSmall" justifyH="RIGHT">
 					<Size y="20"/>
@@ -74,6 +63,8 @@
 		<Scripts>
 			<OnEnter method="OnEnter"/>
 			<OnLeave method="OnLeave"/>
+			<OnMouseUp method="OnMouseUp"/>
+			<OnMouseDown method="OnMouseDown"/>
 		</Scripts>
 	</Button>
 
@@ -104,9 +95,9 @@
                             <OnClick method="OnClick"/>
                         </Scripts>
                     </Button>
-                    <Button parentKey="QueryZoneButton" mixin="QueryZoneMixin" inherits="IAAM_MT_MenuButtonTemplate">
+                    <Button parentKey="QueryGuildButton" mixin="QueryGuildMixin" inherits="IAAM_MT_MenuButtonTemplate">
                         <Anchors>
-                            <Anchor point="LEFT" relativeKey="$parent.QueryYellButton" relativePoint="RIGHT" x="10"/>
+                            <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" x="150"/>
                         </Anchors>
                         <Scripts>
                             <OnClick method="OnClick"/>

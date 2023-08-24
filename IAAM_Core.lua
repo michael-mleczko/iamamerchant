@@ -4,7 +4,7 @@
 --
 --             Global variables
 --
-IAAM_VERSION = "2.1.0"
+IAAM_VERSION = "2.1.1"
 
 BINDING_HEADER_IAAM = "IAmAMerchant"
 BINDING_NAME_ADDONS = "Addons"

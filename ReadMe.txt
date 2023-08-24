@@ -1,4 +1,4 @@
-IAmAMerchant Classic (v1.0.0)
+IAmAMerchant Classic (v2.1.1)
 
 Purpose:
 ========
@@ -66,6 +66,9 @@ Known issues:
 Release Notes:
 ==============
 
+    - v2.1.1
+        - Minor improvements.
+        - Query buttons are disabled for 10 seconds, to prevent spaming addon messages.
     - v2.1.0
         - Added the "Merchant Tracker" windows which allows to search for for players near you or
           in your guild who have items for sale. Any player found will be shown in a list. The list
