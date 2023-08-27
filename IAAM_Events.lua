@@ -118,7 +118,7 @@ function IAAM_EVENT_Handlers.PLAYER_TARGET_CHANGED()
     IAAM_VendorButtonFrame:Hide()
     if IAAM_CORE_IsValidUnitID("target") then
         local Name = IAAM_CORE_GetName("target")
-        if Name ~= nil then
+        if Name ~= nil and Name ~= IAAM_CORE_GetName("player") then
             IAAM_COM_CheckPlayer(Name)
         end
     end
