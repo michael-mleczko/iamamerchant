@@ -4,7 +4,7 @@
 --
 --             Global variables
 --
-IAAM_VERSION = "2.1.1"
+IAAM_VERSION = "2.1.2"
 
 BINDING_HEADER_IAAM = "IAmAMerchant"
 BINDING_NAME_ADDONS = "Addons"
@@ -42,9 +42,6 @@ end
 --             IAAM_CORE_AddItem()
 --
 function IAAM_CORE_UpdateList()
-    --
-    -- NEW: Update available count display of the items in your merchant window
-    --
     for k, v in pairs(IAAM_Character.ItemsForSale) do
         v.CountAvailable = GetItemCount(v.Link, true, true)
     end

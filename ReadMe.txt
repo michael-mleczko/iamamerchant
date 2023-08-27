@@ -1,4 +1,4 @@
-IAmAMerchant Classic (v2.1.1)
+IAmAMerchant Classic (v2.1.2)
 
 Purpose:
 ========
@@ -66,6 +66,12 @@ Known issues:
 Release Notes:
 ==============
 
+    - v2.1.2
+        - Added auto query feature that scans your surroundings for merchants every 30 seconds.
+          If merchants were found, a small movable frame appears, showing the number of the found
+          merchants. If sound is enabled (/iaam sound on), a sound is played if more merchants
+          than before have been found. The auto scna is enabled by default and can be enabled or
+          disabled with the check box in the merchant tracker window.
     - v2.1.1
         - Minor improvements.
         - Query buttons are disabled for 10 seconds, to prevent spaming addon messages.

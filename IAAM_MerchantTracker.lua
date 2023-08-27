@@ -108,6 +108,10 @@ QueryYellMixin = {}
 
 function QueryYellMixin:OnClick(Button, Down)
     if self.Enabled ~= false then
+        IAAM_MT_MerchantCounter.MerchantCountPrev = 0
+        IAAM_MT_MerchantCounter:Hide()
+        AutoQueryCheckButton:SetChecked(false)
+        IAAM_Character.AutoQueryChecked = false
         self:GetParent():GetParent().DataTable = CreateDataProvider()
         IAAM_MT.ScrollList.ScrollBox:SetDataProvider(self:GetParent():GetParent().DataTable)
         IAAM_COM_QueryBroadcastYell()
@@ -132,6 +136,10 @@ QueryGuildMixin = {}
 
 function QueryGuildMixin:OnClick(Button, Down)
     if self.Enabled ~= false then
+        IAAM_MT_MerchantCounter.MerchantCountPrev = 0
+        IAAM_MT_MerchantCounter:Hide()
+        AutoQueryCheckButton:SetChecked(false)
+        IAAM_Character.AutoQueryChecked = false
         self:GetParent():GetParent().DataTable = CreateDataProvider()
         IAAM_MT.ScrollList.ScrollBox:SetDataProvider(self:GetParent():GetParent().DataTable)
         IAAM_COM_QueryBroadcastGuild()
@@ -145,6 +153,79 @@ function QueryGuildMixin:OnClick(Button, Down)
         end) 
     end
 end
+
+--============================================================
+--============================================================
+--
+--             AutoQueryMixin
+--
+
+AutoQueryMixin = {}
+
+local TIMER_PERIOD = 30
+
+function AutoQueryMixin.Timer()
+    if IAAM_MT_MerchantCounter.MerchantCount == 0 then
+        IAAM_MT_MerchantCounter:Hide()
+    end
+    IAAM_MT_MerchantCounter.MerchantCountPrev = IAAM_MT_MerchantCounter.MerchantCount
+    IAAM_MT_MerchantCounter.MerchantCount = 0
+    if IAAM_Character.AutoQueryChecked == true then
+        --
+        -- Timer function that queries surroundings every 30 seconds.
+        --
+        IAAM_MT.DataTable = CreateDataProvider()
+        IAAM_MT.ScrollList.ScrollBox:SetDataProvider(IAAM_MT.DataTable)
+        IAAM_COM_QueryBroadcastYell()
+        AutoQueryMixin.QueryTimer = C_Timer.NewTimer(TIMER_PERIOD, AutoQueryMixin.Timer)
+    end
+end
+
+function AutoQueryMixin:OnClick(Button, Down)
+    --
+    -- CheckButton is toggled automatically. No need to use self.SetChecked()
+    --
+    IAAM_Character.AutoQueryChecked = AutoQueryCheckButton:GetChecked()
+    --
+    -- Either cancel or start timer
+    --
+    if IAAM_Character.AutoQueryChecked == true then
+        AutoQueryMixin.QueryTimer = C_Timer.NewTimer(1, AutoQueryMixin.Timer)
+    else
+        IAAM_MT_MerchantCounter.MerchantCountPrev = 0
+        IAAM_MT_MerchantCounter:Hide()
+        AutoQueryMixin.QueryTimer:Cancel()
+        AutoQueryMixin.QueryTimer = nil
+    end
+end
+
+function AutoQueryMixin:Init()
+    IAAM_Character.AutoQueryChecked = IAAM_Character.AutoQueryChecked or true
+    AutoQueryCheckButton:SetChecked(IAAM_Character.AutoQueryChecked)
+    if IAAM_Character.AutoQueryChecked == true then
+        AutoQueryMixin.QueryTimer = C_Timer.NewTimer(TIMER_PERIOD, AutoQueryMixin.Timer)
+    end
+    AutoQueryCheckButtonText:SetText("Auto Query Surroundings")
+end
+
+--============================================================
+--============================================================
+--
+--             IAAM_MT_MenuButtonMixin
+--
+
+IAAM_MT_MerchantCounterMixin = {};
+
+function IAAM_MT_MerchantCounterMixin:OnLoad()
+    self.MerchantCountPrev = self.MerchantCountPrev or 0
+    self.MerchantCount = self.MerchantCount or 0
+    self:RegisterForDrag("LeftButton")
+	self.Label:SetText("Merchants: "..tostring(self.MerchantCount))
+    self:SetBackdrop(backdropInfo)
+    self:SetBackdropColor(0.3, 0.3, 0.3, 0.5)
+    self:SetBackdropBorderColor(0.8, 0.8, 0.8, 1.0)
+end
+
 
 --============================================================
 --============================================================

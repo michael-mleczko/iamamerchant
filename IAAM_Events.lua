@@ -88,9 +88,24 @@ function IAAM_EVENT_Handlers.CHAT_MSG_ADDON(...)
             end
         elseif Command == IAAM_COM_COMMAND_QueryBroadcastResponse then
             IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_QueryBroadcastResponse")
-            IAAM_MT.DataTable:InsertTable({
-                { Player = Target, NumItems = Table[2] },
-            })
+            if Target ~= IAAM_CORE_GetName("player") and Table[2] > 0 then
+                if IAAM_MT.DataTable ~= nil then  -- Avoid handling received reponses after a reload
+                    if IAAM_Character.AutoQueryChecked == true then
+                        IAAM_MT_MerchantCounter:Show()
+                        IAAM_MT_MerchantCounter.MerchantCount = IAAM_MT_MerchantCounter.MerchantCount + 1
+                        if IAAM_MT_MerchantCounter.MerchantCount > IAAM_MT_MerchantCounter.MerchantCountPrev then
+                            if IAAM_Character.IsSoundEnabled == true then
+                                PlaySound(SOUNDKIT.MONEY_FRAME_OPEN)
+                            end
+                            IAAM_MT_MerchantCounter.Animation:Play()
+                        end
+                        IAAM_MT_MerchantCounter.Label:SetText("Merchants: "..tostring(IAAM_MT_MerchantCounter.MerchantCount))
+                    end
+                    IAAM_MT.DataTable:InsertTable({
+                        { Player = Target, NumItems = Table[2] },
+                    })
+                end
+            end
         end
     end
 end
@@ -143,6 +158,7 @@ function IAAM_EVENT_Handlers.VARIABLES_LOADED(event, ...)
         IAAM_Character.IsSoundEnabled = false
     end
     IAAM_COM_Init()
+    AutoQueryMixin:Init()
     --
     -- Make frames close on ESC
     --
