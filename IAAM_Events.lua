@@ -1,3 +1,4 @@
+local _, IAAM = ...
 
 --============================================================
 --============================================================
@@ -5,30 +6,48 @@
 --             Events
 --
 
-IAAM_EVENT_Handlers = {}
+IAAM.EVENT_Handlers = {}
 
 --============================================================
 --
---             IAAM_CORE_EventHandler()
+--             IAAM_EVENT_GlobalHandler()
 --
 function IAAM_EVENT_GlobalHandler(self, Event, ...)
-    IAAM_DEBUG_Print(false, "Core: Event "..Event)
-    IAAM_EVENT_Handlers[Event](...)
+    IAAM.DEBUG_Print(false, "Core: Event "..Event)
+    IAAM.EVENT_Handlers[Event](...)
+end
+
+--============================================================
+--
+--             CHAT_MSG_CHANNEL()
+--
+function IAAM.EVENT_Handlers.CHAT_MSG_CHANNEL(...)
+    Data, Sender, _, ChannelName = ...
+    --
+    -- Handle YELL
+    --
+    _, ChannelName = strsplit(" ", ChannelName)
+    if ChannelName == IAAM.COM_Channel then
+        if Data == IAAM.COM_COMMAND_QueryBroadcast then
+            IAAM.DEBUG_Print(false, "CHAT_MSG_CHANNEL: IAAM.COM_COMMAND_QueryBroadcast")
+            IAAM.COM_QueryBroadcastResponse(Sender)
+        end
+    end
 end
 
 --============================================================
 --
 --             CHAT_MSG_ADDON()
 --
-function IAAM_EVENT_Handlers.CHAT_MSG_ADDON(...)
-    local Prefix, Data, Channel, Sender, Target, _, _, Name, _  = ...;
+function IAAM.EVENT_Handlers.CHAT_MSG_ADDON(...)
+    local Prefix, Data, Channel, Sender, Target, _, _, Name, _  = ...
     --
     -- Handle YELL
     --
-    if Channel == "YELL" or Channel == "GUILD" then
-        if Data == IAAM_COM_COMMAND_QueryBroadcast then
-            IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_QueryBroadcast")
-            IAAM_COM_QueryBroadcastResponse(Target)
+    if Channel == "YELL" or Channel == "GUILD" or Channel == "CHANNEL" then
+        if Data == IAAM.COM_COMMAND_QueryBroadcast then
+            IAAM.DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM.COM_COMMAND_QueryBroadcast")
+            IAAM.COM_QueryBroadcastResponse(Target)
         end
     end
     --
@@ -38,69 +57,42 @@ function IAAM_EVENT_Handlers.CHAT_MSG_ADDON(...)
         --
         -- Extract link and remove link string from data string
         --
-        local Link, Data = IAAM_LINK_Get(Data)
+        local Link, Data = IAAM.LINK_Get(Data)
         --
         -- Create a table with all arguments
         --
-        local Table = IAAM_CORE_GetData(Data)
+        local Table = IAAM.CORE_GetData(Data)
         --
         -- Table[1] contains the communication command
         --
         local Command = Table[1]
-        if Command == IAAM_COM_COMMAND_RequestItemsResponse then
-            IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_RequestItemsResponse")
+        if Command == IAAM.COM_COMMAND_RequestItemsResponse then
+            IAAM.DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM.COM_COMMAND_RequestItemsResponse")
             --
             -- Item received
             --
             if Target == IAAM_Frame.Name then
-                --                                            Link  Count     Price     CountAvailable
-                IAAM_CORE_AddItem(IAAM_Merchant.ItemsForSale, Link, Table[2], Table[3], Table[4])
+                --                                            Link  StackSize Price     Quantity
+                IAAM.CORE_AddItem(IAAM.Merchant.ItemsForSale, Link, Table[2], Table[3], Table[4])
                 if IAAM_Frame:IsShown() == false then
                     IAAM_Frame:Show()
                 end
-                IAAM_FRAME_Update()
+                IAAM.FRAME_Update()
             end
-        elseif Command == IAAM_COM_COMMAND_RequestItems then
-            IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_RequestItems")
+        elseif Command == IAAM.COM_COMMAND_RequestItems then
+            IAAM.DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM.COM_COMMAND_RequestItems")
             --
             -- Request item list received from a player.
             -- Send your merchant information.
             --
             for Key, ItemForSale in pairs(IAAM_Character.ItemsForSale) do
-                IAAM_COM_SendItem(Target, ItemForSale.Link, ItemForSale.Count, ItemForSale.Price)
+                IAAM.COM_SendItem(Target, ItemForSale.Link, ItemForSale.StackSize, ItemForSale.Price)
             end
-        elseif Command == IAAM_COM_COMMAND_CheckPlayer then
-            IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_CheckPlayer")
-            --
-            -- Received check whether you have items for sale. Send response.
-            --
-            IAAM_COM_CheckPlayerResponse(Target)
-        elseif Command == IAAM_COM_COMMAND_CheckPlayerResponse then
-            IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_CheckPlayer")
-            --
-            -- Received re-advertising.
-            --
-            if Table[2] ~= 0 then
-                IAAM_VendorButtonFrame:Show()
-                if IAAM_Character.IsSoundEnabled == true then
-                    PlaySound(SOUNDKIT.MONEY_FRAME_OPEN)
-                end
-            end
-        elseif Command == IAAM_COM_COMMAND_QueryBroadcastResponse then
-            IAAM_DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM_COM_COMMAND_QueryBroadcastResponse")
-            if Target ~= IAAM_CORE_GetName("player") and Table[2] > 0 then
+        elseif Command == IAAM.COM_COMMAND_QueryBroadcastResponse then
+            IAAM.DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM.COM_COMMAND_QueryBroadcastResponse")
+            print("ShowAll", IAAM_Character.ShowAll)
+            if IAAM_Character.ShowAll == true or Table[2] > 0 then
                 if IAAM_MT.DataTable ~= nil then  -- Avoid handling received reponses after a reload
-                    if IAAM_Character.AutoQueryChecked == true then
-                        IAAM_MT_MerchantCounter:Show()
-                        IAAM_MT_MerchantCounter.MerchantCount = IAAM_MT_MerchantCounter.MerchantCount + 1
-                        if IAAM_MT_MerchantCounter.MerchantCount > IAAM_MT_MerchantCounter.MerchantCountPrev then
-                            if IAAM_Character.IsSoundEnabled == true then
-                                PlaySound(SOUNDKIT.MONEY_FRAME_OPEN)
-                            end
-                            IAAM_MT_MerchantCounter.Animation:Play()
-                        end
-                        IAAM_MT_MerchantCounter.Label:SetText("Merchants: "..tostring(IAAM_MT_MerchantCounter.MerchantCount))
-                    end
                     IAAM_MT.DataTable:InsertTable({
                         { Player = Target, NumItems = Table[2] },
                     })
@@ -112,32 +104,18 @@ end
 
 --=============================================================
 --
---             PLAYER_TARGET_CHANGED()
---
-function IAAM_EVENT_Handlers.PLAYER_TARGET_CHANGED()
-    IAAM_VendorButtonFrame:Hide()
-    if IAAM_CORE_IsValidUnitID("target") then
-        local Name = IAAM_CORE_GetName("target")
-        if Name ~= nil and Name ~= IAAM_CORE_GetName("player") then
-            IAAM_COM_CheckPlayer(Name)
-        end
-    end
-end
-
---=============================================================
---
 --             VARIABLES_LOADED()
 --
 --  Secondary entry point of this addon
 --
-function IAAM_EVENT_Handlers.VARIABLES_LOADED(event, ...)
-    IAAM_DEBUG_Print(false, "Core: Variables loaded")
+function IAAM.EVENT_Handlers.VARIABLES_LOADED(event, ...)
+    IAAM.DEBUG_Print(false, "Core: Variables loaded")
 
-    if type(IAAM_Merchant) ~= "table" then
-        IAAM_Merchant = {}
+    if type(IAAM.Merchant) ~= "table" then
+        IAAM.Merchant = {}
     end
-    if type(IAAM_Merchant.ItemsForSale) ~= "table" then
-        IAAM_Merchant.ItemsForSale = {}
+    if type(IAAM.Merchant.ItemsForSale) ~= "table" then
+        IAAM.Merchant.ItemsForSale = {}
     end
     if type(IAAM_Character) ~= "table" then
         IAAM_Character = {}
@@ -148,21 +126,24 @@ function IAAM_EVENT_Handlers.VARIABLES_LOADED(event, ...)
     if IAAM_Character.IsEnabled == nil then
         IAAM_Character.IsEnabled = true
     end
-    if type(IAAM_Account) ~= "table" then
-        IAAM_Account = {}
+    if IAAM_Character.ShowAll == nil then
+        IAAM_Character.ShowAll = false
     end
-    if type(IAAM_Account.Merchants) ~= "table" then
-        IAAM_Account.Merchants = {}
+    if type(IAAM.Account) ~= "table" then
+        IAAM.Account = {}
+    end
+    if type(IAAM.Account.Merchants) ~= "table" then
+        IAAM.Account.Merchants = {}
     end
     if type(IAAM_Character.IsSoundEnabled) ~= "boolean" then
         IAAM_Character.IsSoundEnabled = false
     end
-    IAAM_COM_Init()
-    AutoQueryMixin:Init()
+    IAAM.COM_Init()
+    --AutoQueryMixin:Init()
     --
     -- Make frames close on ESC
     --
     tinsert(UISpecialFrames, "IAAM_Frame")
     tinsert(UISpecialFrames, "IAAM_MT")
-    print("IAmAMerchant (v"..IAAM_VERSION..")")
+    print("IAmAMerchant (v"..IAAM.VERSION..")")
 end

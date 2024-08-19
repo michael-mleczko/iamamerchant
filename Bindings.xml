@@ -1,11 +1,8 @@
 <Bindings>
-    <Binding category="ADDONS" name="Open target merchant window" header="IAAM">
-        IAAM_FRAME_OpenTarget()
-    </Binding>
-    <Binding category="ADDONS" name="Open your merchant window">
+    <Binding category="IAmAMerchant" name="OPENPLAYER" default="CTRL-SHIFT-F5">
         IAAM_FRAME_OpenCharacter()
     </Binding>
-    <Binding category="ADDONS" name="Open merchant tracker">
+    <Binding category="IAmAMerchant" name="OPENMERCHANTTRACKER" default="CTRL-SHIFT-F6">
         IAAM_MT:SetShown(not IAAM_MT:IsShown())
     </Binding>
 </Bindings>

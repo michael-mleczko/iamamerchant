@@ -1,3 +1,4 @@
+local _, IAAM = ...
 
 --============================================================
 --============================================================
@@ -17,16 +18,16 @@ SLASH_IAAMSlashCommand1 = "/iaam"
 --    * enable or disable iaam
 --
 function SlashCmdList.IAAMSlashCommand(Message, EditBox)
-    IAAM_DEBUG_Print(false, "Core: Slash command")
+    IAAM.DEBUG_Print(false, "Core: Slash command")
     --
     -- Store space seperated arguments in a table
     --
-    local Table = IAAM_CORE_GetData(Message)
+    local Table = IAAM.CORE_GetData(Message)
     --
     -- Check if table is empty
     --
-    if IAAM_CORE_GetNumItems(Table) == 0 then
-        IAAM_CORE_PrintCommands()
+    if IAAM.CORE_GetNumItems(Table) == 0 then
+        IAAM.CORE_PrintCommands()
         return
     end
     --
@@ -36,9 +37,9 @@ function SlashCmdList.IAAMSlashCommand(Message, EditBox)
         --
         -- Check argument count for add command
         --
-        if IAAM_CORE_GetNumItems(Table) < 3 then
+        if IAAM.CORE_GetNumItems(Table) < 3 then
             print("IAmAMerchant: Wrong command!")
-            IAAM_CORE_PrintCommands()
+            IAAM.CORE_PrintCommands()
             return
         end
         --
@@ -47,7 +48,7 @@ function SlashCmdList.IAAMSlashCommand(Message, EditBox)
         local ItemID = GetItemInfoInstant(Table.Link)
         if ItemID == nil then
             print("IAmAMerchant: Couldn't find item!")
-            IAAM_CORE_PrintCommands()
+            IAAM.CORE_PrintCommands()
             return
         end
         --
@@ -55,21 +56,29 @@ function SlashCmdList.IAAMSlashCommand(Message, EditBox)
         --
         if tonumber(Table[2]) == nil or tonumber(Table[3]) == nil then
             print("IAmAMerchant: Wrong parameters!")
-            IAAM_CORE_PrintCommands()
+            IAAM.CORE_PrintCommands()
             return
         end
         --
         -- Add item to list characters for sale list
         --
-        IAAM_CORE_AddItem(IAAM_Character.ItemsForSale, Table.Link, Table[2], Table[3], GetItemCount(Table.Link, true, true))
+        IAAM.CORE_AddItem(IAAM_Character.ItemsForSale, Table.Link, Table[2], Table[3], GetItemCount(Table.Link, true, true))
         --
         -- If own merchant window is open, add it to targets for sale list and update the window
         -- so that the added item will be displayed instantly
         --
-        if IAAM_Frame:IsShown() then
-            IAAM_FRAME_Update()
+        if IAAM.Frame:IsShown() then
+            IAAM.FRAME_Update()
         end
         print("IAmAMerchant: Item "..Table.Link.." added.")
+    elseif Table[1] == "toggleshowall" then
+        if IAAM_Character.ShowAll == false then
+            IAAM_Character.ShowAll = true
+            print("IAmAMerchant now also shows merchants that have nothing for sale.")
+        else
+            print("IAmAMerchant now only shows merchants that have items for sale.")
+            IAAM_Character.ShowAll = false
+        end
     elseif Table[1] == "on" then
         IAAM_Character.IsEnabled = true
     elseif Table[1] == "off" then
@@ -78,10 +87,10 @@ function SlashCmdList.IAAMSlashCommand(Message, EditBox)
         IAAM_Character.ItemsForSale = {}
     elseif Table[1] == "help" then
         print(" ")
-        print("IAmAMerchant (v"..IAAM_VERSION..")")
+        print("IAmAMerchant (v"..IAAM.VERSION..")")
         print(" ")
         print("Slash command list:")
-        IAAM_CORE_PrintCommands()
+        IAAM.CORE_PrintCommands()
         print(" ")
     elseif Table[1] == "sound" then
         if Table[2] == "on" then
@@ -91,6 +100,6 @@ function SlashCmdList.IAAMSlashCommand(Message, EditBox)
         end
     else
         print("IAmAMerchant: Wrong command!")
-        IAAM_CORE_PrintCommands()
+        IAAM.CORE_PrintCommands()
     end
 end

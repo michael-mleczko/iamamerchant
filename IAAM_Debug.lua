@@ -1,16 +1,14 @@
-
---[[
---]]
+local _, IAAM = ...
 
 --============================================================
 --============================================================
 --
---             Global variables
+--             Variables
 --
 
-IAAM_DEBUG = false
+IAAM.DEBUG = false
 
-if IAAM_DEBUG == true then
+if IAAM.DEBUG == true then
     SLASH_RELOADUI1       = "/rl"
     SlashCmdList.RELOADUI = ReloadUI
 
@@ -33,13 +31,13 @@ end
 
 --============================================================
 --
---             IAAM_DEBUG_Print()
+--             IAAM.DEBUG_Print()
 --
---  Print a message if debug mode is on. It is possible to 
+--  Print a message if debug mode is on. It is possible to
 --  force output, even if debug mode is disabled.
 --
-function IAAM_DEBUG_Print(Force, ...)
-    if IAAM_DEBUG == true or Force == true then
+function IAAM.DEBUG_Print(Force, ...)
+    if IAAM.DEBUG == true or Force == true then
         print("IAAM >> ", ...)
     end
 end

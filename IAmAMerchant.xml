@@ -56,7 +56,7 @@
                 </Layers>
                 <Scripts>
                     <OnMouseDown>
-                        IAAM_FRAME_OpenTarget()
+                        IAAM.FRAME_OpenTarget()
                     </OnMouseDown>
                 </Scripts>
             </Button>
@@ -101,7 +101,6 @@
             <OnLoad function="IAAM_FRAME_OnLoad"/>
             <OnShow function="IAAM_FRAME_OnShow"/>
             <OnMouseDown function="IAAM_FRAME_OnMouseDown"/>
-            <OnUpdate function="IAAM_FRAME_OnUpdate"/>
             <OnMouseWheel function="IAAM_FRAME_OnMouseWheel"/>
             <OnReceiveDrag function="IAAM_FRAME_OnReceiveDrag"/>
             <OnEvent function="IAAM_EVENT_GlobalHandler" />

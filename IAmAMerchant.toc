@@ -6,6 +6,7 @@
 ## SavedVariablesPerCharacter: IAAM_Character
 ## Author: NukiWolf2
 
+ChatThrottleLib.lua
 IAAM_Com.lua
 IAAM_Debug.lua
 IAAM_Events.lua

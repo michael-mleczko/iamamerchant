@@ -4,6 +4,7 @@
 
     <!-- Merchant Tracker -->
 
+	<!--
     <Frame name="IAAM_MT_MerchantCounter" inherits="BackdropTemplate" mixin="IAAM_MT_MerchantCounterMixin" toplevel="true" movable="true" clampedToScreen="true" hidden="true">
 		<Size x="90" y="20"/>
         <Anchors>
@@ -41,7 +42,8 @@
             </AnimationGroup>
         </Animations>
     </Frame>
-    
+	-->
+
     <!-- Scroll List Button Template: Buttons used in the scroll list. -->
 	<Button name="IAAM_MT_ScrollListButtonTemplate" inherits="BackdropTemplate" mixin="IAAM_MT_ScrollListButtonMixin" registerForClicks="AnyUp" hidden="false" virtual="true">
 		<Size y="20"/>
@@ -141,6 +143,7 @@
                             <OnClick method="OnClick"/>
                         </Scripts>
                     </Button>
+					<!--
                     <CheckButton Name="AutoQueryCheckButton" parentKey="AutoQuery" mixin="AutoQueryMixin" inherits="OptionsCheckButtonTemplate">
                         <Anchors>
                             <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" x="290"/>
@@ -149,6 +152,7 @@
                             <OnClick method="OnClick"/>
                         </Scripts>
                     </CheckButton>
+					-->
                 </Frames>
 			</Frame>
             <!-- Resize Button -->

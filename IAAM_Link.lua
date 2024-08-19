@@ -1,11 +1,12 @@
+local _, IAAM = ...
 
 --============================================================
 --============================================================
 --
---             Local variables
+--             Variables
 ---
 
-local IAAM_ItemLinkPattern  = "(|c.-|H.-:.-|h|r)"
+IAAM.ItemLinkPattern  = "(|c.-|H.-:.-|h|r)"
 
 --============================================================
 --============================================================
@@ -15,21 +16,21 @@ local IAAM_ItemLinkPattern  = "(|c.-|H.-:.-|h|r)"
 
 --============================================================
 --
---             IAAM_LINK_Get()
+--             IAAM.LINK_Get()
 --
 --  Extracts an item link from a string. The item will be
 --  reomved entirely from the String.
 --
-function IAAM_LINK_Get(String)
+function IAAM.LINK_Get(String)
     --
     -- Get start and end index of the item within the given string.
     --
-    local StartIndex, EndIndex = string.find(String, IAAM_ItemLinkPattern)
+    local StartIndex, EndIndex = string.find(String, IAAM.ItemLinkPattern)
     if StartIndex ~= nil then
         --
         -- If an item link was found, return: ItemLink, String
         --
-        return string.sub(String, StartIndex, EndIndex), string.gsub(String, IAAM_ItemLinkPattern, "")
+        return string.sub(String, StartIndex, EndIndex), string.gsub(String, IAAM.ItemLinkPattern, "")
     end
     --
     -- If no item link was found, return: nil, String

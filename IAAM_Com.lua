@@ -1,24 +1,19 @@
+local _, IAAM = ...
 
 --============================================================
 --============================================================
 --
---             Local variables
+--             Variables
 --
 
-local IAAM_COM_Channel = "IAAM_COM_Channel"
+IAAM.COM_Prefix          = "IAAM"
+IAAM.COM_Channel         = "IAmAMerchant"
+IAAM.COM_ChannelPassword = "n7Jndj920Jow"
 
---============================================================
---============================================================
---
---             Global variables
---
-
-IAAM_COM_COMMAND_CheckPlayer            = "a"
-IAAM_COM_COMMAND_CheckPlayerResponse    = "b"
-IAAM_COM_COMMAND_RequestItems           = "c"
-IAAM_COM_COMMAND_RequestItemsResponse   = "d"
-IAAM_COM_COMMAND_QueryBroadcast         = "e"
-IAAM_COM_COMMAND_QueryBroadcastResponse = "f"
+IAAM.COM_COMMAND_RequestItems           = "c"
+IAAM.COM_COMMAND_RequestItemsResponse   = "d"
+IAAM.COM_COMMAND_QueryBroadcast         = "e"
+IAAM.COM_COMMAND_QueryBroadcastResponse = "f"
 
 --============================================================
 --============================================================
@@ -28,96 +23,84 @@ IAAM_COM_COMMAND_QueryBroadcastResponse = "f"
 
 --============================================================
 --
---             IAAM_COM_Init()
+--             IAAM.COM_Init()
 --
-function IAAM_COM_Init()
+function IAAM.COM_Init()
     --
     -- Initialize message addon channel
     --
-    if C_ChatInfo.IsAddonMessagePrefixRegistered(IAAM_COM_Channel) == false then
-        C_ChatInfo.RegisterAddonMessagePrefix(IAAM_COM_Channel)
-        if C_ChatInfo.IsAddonMessagePrefixRegistered(IAAM_COM_Channel) == false then
-            IAAM_DEBUG_Print(false, "IAAM_COM_Init: Could not register message prefix.")
+    if C_ChatInfo.IsAddonMessagePrefixRegistered(IAAM.COM_Prefix) == false then
+        C_ChatInfo.RegisterAddonMessagePrefix(IAAM.COM_Prefix)
+        if C_ChatInfo.IsAddonMessagePrefixRegistered(IAAM.COM_Prefix) == false then
+            IAAM.DEBUG_Print(false, "IAAM.COM_Init: Could not register message prefix.")
         end
     end
-end
-
---============================================================
---
---             IAAM_COM_SendRequestItems()
---
-function IAAM_COM_SendRequestItems(UnitName)
-    IAAM_DEBUG_Print(false, "IAAM_COM_SendRequestItems("..UnitName..")")
-    if C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_RequestItems, "WHISPER", UnitName) == false then
-        IAAM_DEBUG_Print(false, "IAAM_COM_SendRequestItems: Could not send addon message.")
-    end
-end
-
---============================================================
---
---             IAAM_COM_SendItem()
---
-function IAAM_COM_SendItem(UnitName, Link, Count, Price)
-    IAAM_DEBUG_Print(false, "IAAM_COM_SendItem("..UnitName..", "..Link..", "..Count..", "..Price..")")
-    local DataString = IAAM_COM_COMMAND_RequestItemsResponse.." "..Link.." "..Count.." "..Price.." "..GetItemCount(Link, true, true)
-    C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, DataString, "WHISPER", UnitName)
-end
-
---============================================================
---
---             IAAM_COM_CheckPlayer()
---
-function IAAM_COM_CheckPlayer(UnitName)
-    IAAM_DEBUG_Print(false, "IAAM_COM_CheckPlayer("..UnitName..") NumItems: ", IAAM_CORE_GetNumItems(IAAM_Character.ItemsForSale))
     --
-    -- Check if the player is a merchant
+    -- Initliaze IAAM channel
     --
-    if IAAM_CORE_IsValidName(UnitName) then
-        C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_CheckPlayer, "WHISPER", UnitName)
+    Id = GetChannelName(IAAM.COM_Channel)
+    if Id == 0 then
+        JoinPermanentChannel(IAAM.COM_Channel, IAAM.COM_ChannelPassword)
+        Id = GetChannelName(IAAM.COM_Channel)
+        if Id == 0 then
+            IAAM.DEBUG_Print(false, "Failed joining communication channel")
+        else
+            IAAM.DEBUG_Print(false, "Joined communication channel: ", Id)
+        end
+    else
+        IAAM.DEBUG_Print(false, "Already in communication channel")
     end
 end
 
 --============================================================
 --
---             IAAM_COM_CheckPlayerResponse()
+--             IAAM.COM_SendRequestItems()
 --
-function IAAM_COM_CheckPlayerResponse(UnitName)
-    IAAM_DEBUG_Print(false, "IAAM_COM_CheckPlayerResponse("..UnitName..") NumItems: ", IAAM_CORE_GetNumItems(IAAM_Character.ItemsForSale))
-    --
-    -- Check if the player is a merchant
-    --
-    if IAAM_CORE_IsValidName(UnitName) then
-        C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_CheckPlayerResponse.." "..IAAM_CORE_GetNumItems(IAAM_Character.ItemsForSale), "WHISPER", UnitName)
+function IAAM.COM_SendRequestItems(UnitName)
+    IAAM.DEBUG_Print(false, "IAAM.COM_SendRequestItems("..UnitName..")")
+    if ChatThrottleLib:SendAddonMessage("NORMAL", IAAM.COM_Prefix, IAAM.COM_COMMAND_RequestItems, "WHISPER", UnitName) == false then
+        IAAM.DEBUG_Print(false, "IAAM.COM_SendRequestItems: Could not send addon message.")
     end
 end
 
 --============================================================
 --
---             IAAM_COM_QueryBroadcastYell()
+--             IAAM.COM_SendItem()
 --
-function IAAM_COM_QueryBroadcastYell()
-    IAAM_DEBUG_Print(false, "IAAM_COM_QueryBroadcastYell()")
-    if IAAM_CORE_GetNumItems(IAAM_Character.ItemsForSale) > 0 then
-        C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_QueryBroadcast, "YELL")
+function IAAM.COM_SendItem(UnitName, Link, StackSize, Price)
+    IAAM.DEBUG_Print(false, "IAAM.COM_SendItem("..UnitName..", "..Link..", "..StackSize..", "..Price..")")
+    local DataString = IAAM.COM_COMMAND_RequestItemsResponse.." "..Link.." "..StackSize.." "..Price.." "..GetItemCount(Link, true, true)
+    ChatThrottleLib:SendAddonMessage("NORMAL", IAAM.COM_Prefix, DataString, "WHISPER", UnitName)
+end
+
+--============================================================
+--
+--             IAAM.COM_QueryBroadcastWorld()
+--
+function IAAM.COM_QueryBroadcastWorld()
+    IAAM.DEBUG_Print(false, "IAAM.COM_QueryBroadcastWorld()")
+    Id = GetChannelName(IAAM.COM_Channel)
+    if Id == 0 then
+        IAAM.DEBUG_Print(false, "Cannot send addon data. Communication channel not found. Id: ", Id)
+    else
+        ChatThrottleLib:SendChatMessage("NORMAL", IAAM.COM_Prefix, IAAM.COM_COMMAND_QueryBroadcast, "CHANNEL", nil, Id)
     end
 end
 
 --============================================================
 --
---             IAAM_COM_QueryBroadcastGuild()
+--             IAAM.COM_QueryBroadcastGuild()
 --
-function IAAM_COM_QueryBroadcastGuild()
-    IAAM_DEBUG_Print(false, "IAAM_COM_QueryBroadcastGuild()")
-    if IAAM_CORE_GetNumItems(IAAM_Character.ItemsForSale) > 0 then
-        C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_QueryBroadcast, "GUILD")
-    end
+function IAAM.COM_QueryBroadcastGuild()
+    IAAM.DEBUG_Print(false, "IAAM.COM_QueryBroadcastGuild()")
+    ChatThrottleLib:SendAddonMessage("NORMAL", IAAM.COM_Prefix, IAAM.COM_COMMAND_QueryBroadcast, "GUILD")
 end
 
 --============================================================
 --
---             IAAM_COM_QueryBroadcastResponse()
+--             IAAM.COM_QueryBroadcastResponse()
 --
-function IAAM_COM_QueryBroadcastResponse(Target)
-    IAAM_DEBUG_Print(false, "IAAM_COM_QueryBroadcastResponse()")
-    C_ChatInfo.SendAddonMessage(IAAM_COM_Channel, IAAM_COM_COMMAND_QueryBroadcastResponse.." "..IAAM_CORE_GetNumItems(IAAM_Character.ItemsForSale), "WHISPER", Target)
+function IAAM.COM_QueryBroadcastResponse(Target)
+    IAAM.DEBUG_Print(false, "IAAM.COM_QueryBroadcastResponse()")
+    ChatThrottleLib:SendAddonMessage("NORMAL", IAAM.COM_Prefix, IAAM.COM_COMMAND_QueryBroadcastResponse.." "..IAAM.CORE_GetNumItems(IAAM_Character.ItemsForSale), "WHISPER", Target)
 end
