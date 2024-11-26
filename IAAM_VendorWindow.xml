@@ -1,86 +1,65 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 
-    <!-- Load Core LUA script -->
+    <!-- Load LUA script -->
+    <Script file="IAAM_VendorWindow.lua"/>
 
-    <Script File="IAAM_Frame.lua" />
-
-    <!-- Vendor Button Frame -->
-
-    <Frame name="IAAM_VendorButtonFrame" toplevel="true" movable="true" resizable="false" enableMouse="false" parent="UIParent" hidden="true">
-        <!-- This frame just serves as a container -->
-        <Size>
-            <AbsDimension x="1" y="1" />
-        </Size>
-        <Anchors>
-            <Anchor point="CENTER" />
-        </Anchors>
+    <!-- Extension for the AddItemPopup -->
+    <Frame name="IAAM_PopupExtension"  enableMouse="true" toplevel="true" hidden="true">
+		<Anchors>
+			<Anchor point="CENTER"/>
+		</Anchors>
+        <Size x="240" y="60"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <!-- First Label -->
+                <FontString parentKey="Label1" text="Stack Size:" inherits="GameFontNormal">
+                    <Anchors>
+                        <Anchor point="RIGHT" relativePoint="TOP" y="-20"/>
+                    </Anchors>
+                </FontString>
+                <!-- Second Label -->
+                <FontString parentKey="Label2" text="Stack Price:" inherits="GameFontNormal">
+                    <Anchors>
+                        <Anchor point="RIGHT" relativePoint="TOP" y="-45"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
         <Frames>
-            <!-- Frame used to move the parent frame -->
-            <Frame name="$parent_DragFrame" frameStrata="DIALOG" >
+            <!-- First Edit Box -->
+            <EditBox parentKey="EditBox1" numeric="true" autoFocus="false" inherits="InputBoxTemplate">
+                <Size x="100" y="20"/>
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="IAAM_VendorButtonFrame" relativePoint="TOPLEFT" x="-10" y="10"/>
+                    <Anchor point="LEFT" relativeKey="$parent.Label1" relativePoint="RIGHT" x="10"/>
                 </Anchors>
-                <Size x="24" y="24"/>
-                <Layers>
-                    <Layer level="ARTWORK">
-                        <Texture name="$parent_DragFrameTexture" file="Interface\Buttons\LockButton-Border" />
-                    </Layer>
-                </Layers>
-                <Scripts>
-                    <OnMouseDown>
-                        IAAM_VendorButtonFrame:StartMoving()
-                    </OnMouseDown>
-                    <OnMouseUp>
-                        IAAM_VendorButtonFrame:StopMovingOrSizing()
-                    </OnMouseUp>
-                </Scripts>
-            </Frame>
-            <!-- Button to open vendor window -->
-            <Button name="$parent_Button" >
+            </EditBox>
+            <!-- Second Edit Box -->
+            <EditBox parentKey="EditBox2" numeric="true" autoFocus="true" inherits="InputBoxTemplate">
+                <Size x="100" y="20"/>
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="IAAM_VendorButtonFrame" relativePoint="TOPLEFT" x="0" y="0"/>
+                    <Anchor point="LEFT" relativeKey="$parent.Label2" relativePoint="RIGHT" x="10"/>
                 </Anchors>
-                <Size x="64" y="64"/>
-                <Layers>
-                    <Layer level="ARTWORK">
-                        <Texture name="$parent_ButtonTexture2" file="Interface\COMMON\BlueMenuRing" >
-                            <Size x="120" y="120"/>
-                            <Anchors>
-                                <Anchor point="TOPLEFT" x="-16" y="16"/>
-                            </Anchors>
-                        </Texture>
-                    </Layer>
-                    <Layer level="BACKGROUND">
-                        <Texture name="$parent_ButtonTexture1" file="Interface\MERCHANTFRAME\UI-BuyBack-Icon" />
-                    </Layer>
-                </Layers>
-                <Scripts>
-                    <OnMouseDown>
-                        IAAM.FRAME_OpenTarget()
-                    </OnMouseDown>
-                </Scripts>
-            </Button>
+            </EditBox>
         </Frames>
     </Frame>
 
-    <!-- Merchant Frame -->
-
-    <Frame name="IAAM_Frame" inherits="ButtonFrameTemplate" toplevel="true" movable="true" resizable="false" enableMouse="true" parent="UIParent" hidden="true" >
+    <!-- Vendor Window Frame -->
+    <Frame name="IAAM_VW" inherits="ButtonFrameTemplate" toplevel="true" movable="true" resizable="false" enableMouse="true" parent="UIParent" hidden="true" >
         <Size>
-            <AbsDimension x="340" y="444" />
+            <AbsDimension x="340" y="444"/>
         </Size>
         <Anchors>
-            <Anchor point="CENTER" x="0" y="0" />
+            <Anchor point="CENTER" x="0" y="0"/>
         </Anchors>
         <Layers>
             <Layer level="BORDER">
-                <FontString name="IAAM_Frame_Page" inherits="GameFontNormal" text="">
+                <FontString parentKey="FontStringPage" inherits="GameFontNormal" text="">
                     <Size x="104" y="0"/>
                     <Anchors>
                         <Anchor point="BOTTOM" x="0" y="42"/>
                     </Anchors>
                 </FontString>
-                <FontString name="IAAM_Frame_Title" inherits="GameFontNormal" text="MerchantName">
+                <FontString parentKey="FontStringTitle" inherits="GameFontNormal" text="MerchantName">
                     <Size x="250" y="0"/>
                     <Anchors>
                         <Anchor point="TOP" x="15" y="-5"/>
@@ -89,111 +68,101 @@
             </Layer>
         </Layers>
         <Scripts>
-            <OnHide>
-            </OnHide>
-            <OnDragStart>
-                self:StartMoving()
-            </OnDragStart>
-            <OnDragStop>
-                self:StopMovingOrSizing()
-            </OnDragStop>
-            <OnHide function="IAAM_FRAME_OnHide"/>
-            <OnLoad function="IAAM_FRAME_OnLoad"/>
-            <OnShow function="IAAM_FRAME_OnShow"/>
-            <OnMouseDown function="IAAM_FRAME_OnMouseDown"/>
-            <OnMouseWheel function="IAAM_FRAME_OnMouseWheel"/>
-            <OnReceiveDrag function="IAAM_FRAME_OnReceiveDrag"/>
-            <OnEvent function="IAAM_EVENT_GlobalHandler" />
+            <OnDragStart method="StartMoving"/>
+            <OnDragStop method="StopMovingOrSizing"/>
+            <OnLoad>
+                IAAM.VW.OnLoad(self)
+            </OnLoad>
         </Scripts>
         <Frames>
-            <Frame name="IAAM_Frame_Item1" inherits="MerchantItemTemplate" hidden="true">
+            <Frame parentKey="FrameItem1" name="$parentFrameItem1" inherits="MerchantItemTemplate" hidden="true">
                 <Anchors>
                     <Anchor point="TOPLEFT" x="13" y="-69"/>
                 </Anchors>
             </Frame>
-            <Frame name="IAAM_Frame_Item2" inherits="MerchantItemTemplate" hidden="true">
+            <Frame parentKey="FrameItem2" name="$parentFrameItem2" inherits="MerchantItemTemplate" hidden="true">
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="IAAM_Frame_Item1" relativePoint="TOPRIGHT" x="12" y="0"/>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.FrameItem1" relativePoint="TOPRIGHT" x="12" y="0"/>
                 </Anchors>
             </Frame>
-            <Frame name="IAAM_Frame_Item3" inherits="MerchantItemTemplate" hidden="true">
+            <Frame parentKey="FrameItem3" name="$parentFrameItem3" inherits="MerchantItemTemplate" hidden="true">
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="IAAM_Frame_Item1" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.FrameItem1" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
                 </Anchors>
             </Frame>
-            <Frame name="IAAM_Frame_Item4" inherits="MerchantItemTemplate" hidden="true">
+            <Frame parentKey="FrameItem4" name="$parentFrameItem4" inherits="MerchantItemTemplate" hidden="true">
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="IAAM_Frame_Item3" relativePoint="TOPRIGHT" x="12" y="0"/>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.FrameItem3" relativePoint="TOPRIGHT" x="12" y="0"/>
                 </Anchors>
             </Frame>
-            <Frame name="IAAM_Frame_Item5" inherits="MerchantItemTemplate" hidden="true">
+            <Frame parentKey="FrameItem5" name="$parentFrameItem5" inherits="MerchantItemTemplate" hidden="true">
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="IAAM_Frame_Item3" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.FrameItem3" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
                 </Anchors>
             </Frame>
-            <Frame name="IAAM_Frame_Item6" inherits="MerchantItemTemplate" hidden="true">
+            <Frame parentKey="FrameItem6" name="$parentFrameItem6" inherits="MerchantItemTemplate" hidden="true">
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="IAAM_Frame_Item5" relativePoint="TOPRIGHT" x="12" y="0"/>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.FrameItem5" relativePoint="TOPRIGHT" x="12" y="0"/>
                 </Anchors>
             </Frame>
-            <Frame name="IAAM_Frame_Item7" inherits="MerchantItemTemplate" hidden="true">
+            <Frame parentKey="FrameItem7" name="$parentFrameItem7" inherits="MerchantItemTemplate" hidden="true">
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="IAAM_Frame_Item5" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.FrameItem5" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
                 </Anchors>
             </Frame>
-            <Frame name="IAAM_Frame_Item8" inherits="MerchantItemTemplate" hidden="true">
+            <Frame parentKey="FrameItem8" name="$parentFrameItem8" inherits="MerchantItemTemplate" hidden="true">
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="IAAM_Frame_Item7" relativePoint="TOPRIGHT" x="12" y="0"/>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.FrameItem7" relativePoint="TOPRIGHT" x="12" y="0"/>
                 </Anchors>
             </Frame>
-            <Frame name="IAAM_Frame_Item9" inherits="MerchantItemTemplate" hidden="true">
+            <Frame parentKey="FrameItem9" name="$parentFrameItem9" inherits="MerchantItemTemplate" hidden="true">
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="IAAM_Frame_Item7" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.FrameItem7" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
                 </Anchors>
             </Frame>
-            <Frame name="IAAM_Frame_Item10" inherits="MerchantItemTemplate" hidden="true">
+            <Frame parentKey="FrameItem10" name="$parentFrameItem10" inherits="MerchantItemTemplate" hidden="true">
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="IAAM_Frame_Item9" relativePoint="TOPRIGHT" x="12" y="0"/>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.FrameItem9" relativePoint="TOPRIGHT" x="12" y="0"/>
                 </Anchors>
             </Frame>
-            <Frame name="IAAM_Frame_Item11" inherits="MerchantItemTemplate" hidden="true">
+            <Frame parentKey="FrameItem11" name="$parentFrameItem11" inherits="MerchantItemTemplate" hidden="true">
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="IAAM_Frame_Item9" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.FrameItem9" relativePoint="BOTTOMLEFT" x="0" y="-8"/>
                 </Anchors>
             </Frame>
-            <Frame name="IAAM_Frame_Item12" inherits="MerchantItemTemplate" hidden="true">
+            <Frame parentKey="FrameItem12" name="$parentFrameItem12" inherits="MerchantItemTemplate" hidden="true">
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="IAAM_Frame_Item11" relativePoint="TOPRIGHT" x="12" y="0"/>
+                    <Anchor point="TOPLEFT" relativeKey="$parent.FrameItem11" relativePoint="TOPRIGHT" x="12" y="0"/>
                 </Anchors>
             </Frame>
-            <Frame name="IAAM_MoneyInset" inherits="InsetFrameTemplate" useParentLevel="true">
+            <Frame parentKey="FrameMoneyInset" inherits="InsetFrameTemplate" useParentLevel="true">
                 <Anchors>
                     <Anchor point="TOPLEFT" relativePoint="BOTTOMRIGHT" x="-171" y="27"/>
                     <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-5" y="4"/>
                 </Anchors>
             </Frame>
-            <Frame name="IAAM_MoneyBg" inherits="ThinGoldEdgeTemplate" >
+            <Frame parentKey="FrameMoneyBg" inherits="ThinGoldEdgeTemplate" >
                 <Size x="120" y="30"/>
                 <Anchors>
                     <Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" x="-7" y="25"/>
                     <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="-166" y="6"/>
                 </Anchors>
             </Frame>
-            <Frame name="IAAM_MoneyFrame" inherits="SmallMoneyFrameTemplate">
+            <Frame parentKey="FrameMoney" name="$parent_FrameMoney" inherits="SmallMoneyFrameTemplate"> <!-- Template requires a name. Else Show() method fails. -->
                 <Anchors>
-                    <Anchor point="BOTTOMRIGHT" relativeTo="IAAM_Frame" relativePoint="BOTTOMRIGHT" x="-4" y="7"/>
+                    <Anchor point="BOTTOMRIGHT" relativeTo="IAAM_VW" relativePoint="BOTTOMRIGHT" x="-4" y="7"/>
                 </Anchors>
             </Frame>
-            <Button name="IAAM_PrevPageButton">
+            <Button parentKey="PrevPageButton">
                 <Size x="32" y="32"/>
                 <Anchors>
-                    <Anchor point="CENTER" relativeTo="IAAM_Frame" relativePoint="BOTTOMLEFT" x="25" y="48"/>
+                    <Anchor point="CENTER" relativeTo="$parent" relativePoint="BOTTOMLEFT" x="25" y="48"/>
                 </Anchors>
                 <Layers>
                     <Layer level="BACKGROUND">
                         <FontString inherits="GameFontNormal" justifyH="LEFT" text="PREV">
                             <Anchors>
-                                <Anchor point="LEFT" relativeTo="IAAM_PrevPageButton" relativePoint="RIGHT"/>
+                                <Anchor point="LEFT" relativeKey="$parent" relativePoint="RIGHT"/>
                             </Anchors>
                         </FontString>
                         <Texture file="Interface\Buttons\UI-PageButton-Background">
@@ -204,24 +173,21 @@
                         </Texture>
                     </Layer>
                 </Layers>
-                <Scripts>
-                    <OnClick function="IAAM_FRAME_PrevPageButton_OnClick"/>
-                </Scripts>
                 <NormalTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Up"/>
                 <PushedTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Down"/>
                 <DisabledTexture file="Interface\Buttons\UI-SpellbookIcon-PrevPage-Disabled"/>
                 <HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD"/>
             </Button>
-            <Button name="IAAM_NextPageButton">
+            <Button parentKey="NextPageButton">
                 <Size x="32" y="32"/>
                 <Anchors>
-                    <Anchor point="CENTER" relativeTo="IAAM_Frame" relativePoint="BOTTOMLEFT" x="316" y="48"/>
+                    <Anchor point="CENTER" relativeTo="$parent" relativePoint="BOTTOMLEFT" x="316" y="48"/>
                 </Anchors>
                 <Layers>
                     <Layer level="BACKGROUND">
                         <FontString inherits="GameFontNormal" justifyH="RIGHT" text="NEXT">
                             <Anchors>
-                                <Anchor point="RIGHT" relativeTo="IAAM_NextPageButton" relativePoint="LEFT" x="-3" y="0"/>
+                                <Anchor point="RIGHT" relativeKey="$parent" relativePoint="LEFT" x="-3" y="0"/>
                             </Anchors>
                         </FontString>
                         <Texture file="Interface\Buttons\UI-PageButton-Background">
@@ -232,14 +198,11 @@
                         </Texture>
                     </Layer>
                 </Layers>
-                <Scripts>
-                    <OnClick function="IAAM_FRAME_NextPageButton_OnClick"/>
-                </Scripts>
                 <NormalTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Up"/>
                 <PushedTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Down"/>
                 <DisabledTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Disabled"/>
                 <HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD"/>
-            </Button>0
+            </Button>
         </Frames>
     </Frame>
 </Ui>

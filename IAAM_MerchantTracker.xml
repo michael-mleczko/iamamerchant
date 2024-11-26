@@ -1,49 +1,8 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 
 	<Script file="IAAM_MerchantTracker.lua"/>
 
     <!-- Merchant Tracker -->
-
-	<!--
-    <Frame name="IAAM_MT_MerchantCounter" inherits="BackdropTemplate" mixin="IAAM_MT_MerchantCounterMixin" toplevel="true" movable="true" clampedToScreen="true" hidden="true">
-		<Size x="90" y="20"/>
-        <Anchors>
-            <Anchor point="CENTER"/>
-        </Anchors>
-		<Layers>
-			<Layer level="OVERLAY">
-				<FontString parentKey="Label" inherits="GameFontHighlightSmall" justifyH="LEFT">
-					<Size y="20"/>
-					<Anchors>
-						<Anchor point="LEFT" x="5"/>
-					</Anchors>
-				</FontString>
-			</Layer>
-		</Layers>
-		<Scripts>
-        <OnDragStart>
-            self:StartMoving()
-        </OnDragStart>
-        <OnDragStop>
-            self:StopMovingOrSizing()
-        </OnDragStop>
-			<OnLoad method="OnLoad"/>
-		</Scripts>
-        <Animations>
-            <AnimationGroup parentKey="Animation">
-                <Alpha fromAlpha="1" toAlpha="0" duration=".1" order="1"/>
-                <Alpha fromAlpha="0" toAlpha="1" duration=".1" order="2"/>
-                <Alpha fromAlpha="1" toAlpha="0" duration=".1" order="3"/>
-                <Alpha fromAlpha="0" toAlpha="1" duration=".1" order="4"/>
-                <Alpha fromAlpha="1" toAlpha="0" duration=".1" order="5"/>
-                <Alpha fromAlpha="0" toAlpha="1" duration=".1" order="6"/>
-                <Alpha fromAlpha="1" toAlpha="0" duration=".1" order="7"/>
-                <Alpha fromAlpha="0" toAlpha="1" duration=".1" order="8"/>
-            </AnimationGroup>
-        </Animations>
-    </Frame>
-	-->
-
     <!-- Scroll List Button Template: Buttons used in the scroll list. -->
 	<Button name="IAAM_MT_ScrollListButtonTemplate" inherits="BackdropTemplate" mixin="IAAM_MT_ScrollListButtonMixin" registerForClicks="AnyUp" hidden="false" virtual="true">
 		<Size y="20"/>
@@ -143,16 +102,6 @@
                             <OnClick method="OnClick"/>
                         </Scripts>
                     </Button>
-					<!--
-                    <CheckButton Name="AutoQueryCheckButton" parentKey="AutoQuery" mixin="AutoQueryMixin" inherits="OptionsCheckButtonTemplate">
-                        <Anchors>
-                            <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" x="290"/>
-                        </Anchors>
-                        <Scripts>
-                            <OnClick method="OnClick"/>
-                        </Scripts>
-                    </CheckButton>
-					-->
                 </Frames>
 			</Frame>
             <!-- Resize Button -->

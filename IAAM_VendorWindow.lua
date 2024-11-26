@@ -1,15 +1,20 @@
 local _, IAAM = ...
 
-_G.IAAM = IAAM
-
 --============================================================
 --============================================================
 --
 --             Variables
 --
 
-IAAM.ITEMS_PER_PAGE        = 12
-IAAM.FRAME_UPDATE_INTERVAL = 1.0
+IAAM.VW                 = {}
+IAAM.VW.ITEMS_PER_PAGE  = 12
+IAAM.VW.UPDATE_INTERVAL = 1.0
+
+IAAM.VW.ItemButton        = {}
+IAAM.VW.NextPageButton    = {}
+IAAM.VW.PrevPageButton    = {}
+IAAM.VW.AddItemPopup      = {}
+IAAM.VW.AddItemPopup.Link = nil
 
 --============================================================
 --============================================================
@@ -19,11 +24,11 @@ IAAM.FRAME_UPDATE_INTERVAL = 1.0
 
 --============================================================
 --
---             IAAM.FRAME_GetItemsForSaleTable()
+--             IAAM.VW.GetItemsForSaleTable()
 --
-function IAAM.FRAME_GetItemsForSaleTable()
+function IAAM.VW.GetItemsForSaleTable()
     local Table
-    if IAAM_Frame_Title:GetText() == IAAM.CORE_GetName("player") then
+    if IAAM_VW.FontStringTitle:GetText() == IAAM.CORE_GetName("player") then
         Table = IAAM_Character.ItemsForSale
     else
         Table = IAAM.Merchant.ItemsForSale
@@ -33,51 +38,51 @@ end
 
 --============================================================
 --
---             IAAM.FRAME_GetPageString()
+--             IAAM.VW.GetPageString()
 --
-function IAAM.FRAME_GetPageString(Merchant)
-    return "Page "..IAAM_Frame.Page.." of "..math.ceil(IAAM.CORE_GetNumItems(IAAM.FRAME_GetItemsForSaleTable()) / IAAM.ITEMS_PER_PAGE)
+function IAAM.VW.GetPageString(Merchant)
+    return "Page "..IAAM_VW.Page.." of "..math.ceil(IAAM.CORE_GetNumItems(IAAM.VW.GetItemsForSaleTable()) / IAAM.VW.ITEMS_PER_PAGE)
 end
 
 --============================================================
 --
---             IAAM_FRAME_NextPageButton_OnClick()
+--             IAAM.VW.NextPageButton:OnClick()
 --
-function IAAM_FRAME_NextPageButton_OnClick(self)
-    IAAM.DEBUG_Print(false, "IAAM_FRAME_NextPageButton_OnClick()")
-    if IAAM_Frame.Page < (IAAM.CORE_GetNumItems(IAAM.FRAME_GetItemsForSaleTable()) / IAAM.ITEMS_PER_PAGE) then
-        IAAM_Frame.Page = IAAM_Frame.Page + 1
-        IAAM_Frame_Page:SetText(IAAM.FRAME_GetPageString())
-        IAAM.FRAME_Update()
+function IAAM.VW.NextPageButton:OnClick()
+    IAAM.DEBUG.Print(false, "IAAM_VW.NextPageButton.OnClick()")
+    if IAAM_VW.Page < (IAAM.CORE_GetNumItems(IAAM.VW.GetItemsForSaleTable()) / IAAM.VW.ITEMS_PER_PAGE) then
+        IAAM_VW.Page = IAAM_VW.Page + 1
+        IAAM_VW.FontStringPage:SetText(IAAM.VW.GetPageString())
+        IAAM.VW.Update()
     end
 end
 
 --============================================================
 --
---             IAAM_FRAME_PrevPageButton_OnClick()
+--             IAAM.VW.PrevPageButton:OnClick()
 --
-function IAAM_FRAME_PrevPageButton_OnClick(self)
-    IAAM.DEBUG_Print(false, "IAAM_FRAME_PrevPageButton_OnClick()")
-    if IAAM_Frame.Page > 1 then
-        IAAM_Frame.Page = IAAM_Frame.Page - 1
-        IAAM_Frame_Page:SetText(IAAM.FRAME_GetPageString())
-        IAAM.FRAME_Update()
+function IAAM.VW.PrevPageButton:OnClick()
+    IAAM.DEBUG.Print(false, "IAAM_VW.PrevPageButton.OnClick()")
+    if IAAM_VW.Page > 1 then
+        IAAM_VW.Page = IAAM_VW.Page - 1
+        IAAM_VW.FontStringPage:SetText(IAAM.VW.GetPageString())
+        IAAM.VW.Update()
     end
 end
 
 --============================================================
 --
---             IAAM.FRAME_ItemButton_OnClick()
+--             IAAM.VW.ItemButton.OnClick()
 --
-function IAAM.FRAME_ItemButton_OnClick(self, button, down)
-    IAAM.DEBUG_Print(false, "IAAM.FRAME_ItemButton_OnClick()")
+function IAAM.VW.ItemButton.OnClick(self, button, down)
+    IAAM.DEBUG.Print(false, "IAAM.VW.ItemButton.OnClick()")
     if button == "RightButton" then
-        if IAAM_Frame.Name == IAAM.CORE_GetName("player") then
+        if IAAM_VW.Name == IAAM.CORE_GetName("player") then
             --
             -- Remove item from your list
             --
             IAAM_Character.ItemsForSale[""..self.link] = nil
-            IAAM.FRAME_Update()
+            IAAM.VW.Update()
         end
     elseif IsShiftKeyDown() and button == "LeftButton" then
         DEFAULT_CHAT_FRAME.editBox:Insert(self.link)
@@ -86,112 +91,108 @@ end
 
 --============================================================
 --
---             IAAM.FRAME_AddItem_OnAccept()
+--             IAAM.VW.AddItemPopup.OnAccept()
 --
-function IAAM.FRAME_AddItem_OnAccept(self)
-    local Price = tonumber(self.editBox:GetText())
-    if Price == nil then
-        Price = 0
+function IAAM.VW.AddItemPopup.OnAccept(self)
+    local StackSize = tonumber(IAAM_PopupExtension.EditBox1:GetText())
+    local StackPrice = tonumber(IAAM_PopupExtension.EditBox2:GetText())
+    if StackPrice == nil then
+        StackPrice = 0
     end
-    IAAM.CORE_AddItem(IAAM_Character.ItemsForSale, IAAM.Popup_ItemLink, 0, Price, GetItemCount(IAAM.Popup_ItemLink, true, true))
-    IAAM.FRAME_Update()
+IAAM.CORE_AddItem(IAAM_Character.ItemsForSale, IAAM.VW.AddItemPopup.Link, StackSize, StackPrice, C_Item.GetItemCount(IAAM.VW.AddItemPopup.Link, true, true))
+    IAAM.VW.Update()
 end
 
 --============================================================
 --
---             IAAM.FRAME_AddItem_OnShow()
+--             IAAM.VW.AddItemPopup.OnShow()
 --
-function IAAM.FRAME_AddItem_OnShow(self)
-    self.editBox:SetNumeric(true)
-    self.editBox.Popup = self
-    self.editBox:SetScript("OnEnterPressed", IAAM.FRAME_AddItem_OnEnterPressed)
-    self.editBox:SetScript("OnEscapePressed", IAAM.FRAME_AddItem_OnEscapePressed)
+function IAAM.VW.AddItemPopup.OnShow(self)
+    IAAM.VW.AddItemPopup.Frame = self
+    IAAM_PopupExtension.EditBox1:SetText("1")
+    IAAM_PopupExtension.EditBox2:SetScript("OnEnterPressed", IAAM.VW.AddItemPopup.OnEnterPressed)
+    IAAM_PopupExtension.EditBox2:SetScript("OnEscapePressed", IAAM.VW.AddItemPopup.OnEscapePressed)
+    IAAM_PopupExtension.EditBox1:SetScript("OnTabPressed", function ()
+        IAAM_PopupExtension.EditBox2:SetFocus()
+    end)
+    IAAM_PopupExtension.EditBox2:SetScript("OnTabPressed", function ()
+        IAAM_PopupExtension.EditBox1:SetFocus()
+    end)
+    IAAM_PopupExtension.EditBox2:SetScript("OnTextChanged", function ()
+        local Money = tonumber(IAAM_PopupExtension.EditBox2:GetText()) or 0
+        MoneyFrame_Update(IAAM.VW.AddItemPopup.Frame.moneyFrame, Money)
+    end)
+    IAAM_PopupExtension.EditBox2:SetFocus()
 end
 
 --============================================================
 --
---             IAAM.FRAME_AddItem_OnEnterPressed()
+--             IAAM.VW.AddItemPopup.OnEnterPressed()
 --
-function IAAM.FRAME_AddItem_OnEnterPressed(self)
-    IAAM.FRAME_AddItem_OnAccept(self.Popup)
-    self.Popup:Hide()
+function IAAM.VW.AddItemPopup.OnEnterPressed(self)
+    IAAM.VW.AddItemPopup.OnAccept(IAAM.VW.AddItemPopup.Frame)
+    IAAM.VW.AddItemPopup.Frame:Hide()
 end
 
 --============================================================
 --
---             IAAM.FRAME_AddItem_OnEscapePressed()
+--             IAAM.VW.AddItemPopup.OnEscapePressed()
 --
-function IAAM.FRAME_AddItem_OnEscapePressed(self)
-    self.Popup:Hide()
+function IAAM.VW.AddItemPopup.OnEscapePressed(self)
+    IAAM.VW.AddItemPopup.Frame:Hide()
 end
-
-StaticPopupDialogs["IAAM.Popup_AddItem"] = {
-    text           = "Price per Unit:",
-    button1        = "Add Item",
-    button2        = "Cancel",
-    OnAccept       = IAAM.FRAME_AddItem_OnAccept,
-    OnShow         = IAAM.FRAME_AddItem_OnShow,
-    timeout        = 0,
-    whileDead      = true,
-    hideOnEscape   = 1,
-    preferredIndex = 3,
-    hasEditBox     = true
-}
 
 --============================================================
 --
---             IAAM_FRAME_OnReceiveDrag()
+--             IAAM.VW.OnReceiveDrag()
 --
-function IAAM_FRAME_OnReceiveDrag(self)
-    local Type, _, ItemLink = GetCursorInfo()
+function IAAM.VW.OnReceiveDrag(self)
+    local Type, ItemID, ItemLink = GetCursorInfo()
     ClearCursor()
-    if IAAM.CORE_GetName("player") == IAAM_Frame_Title:GetText() then
+    if IAAM.CORE_GetName("player") == IAAM_VW.FontStringTitle:GetText() then
         if Type == "item" then
-            IAAM.Popup_ItemLink = ItemLink
-            StaticPopup_Show("IAAM.Popup_AddItem")
+            IAAM.VW.AddItemPopup.Link = ItemLink
+            local ItemName, _, ItemQuality = C_Item.GetItemInfo(ItemLink)
+            r, g, b = C_Item.GetItemQualityColor(ItemQuality)
+            ItemTexture = select(10, C_Item.GetItemInfo(ItemLink))
+            local Data = {
+                texture = ItemTexture,
+                name    = ItemName,
+                color   = {r, g, b, 1},
+                link    = ItemLink,
+                index   = ItemID
+            }
+            StaticPopup_Show("IAAM.VW.AddItemPopup", nil, nil, Data, IAAM_PopupExtension)
         end
     end
 end
 
 --============================================================
 --
---             IAAM_FRAME_OnMouseDown()
+--             IAAM.VW.OnMouseDown()
 --
-function IAAM_FRAME_OnMouseDown(self, button)
+function IAAM.VW.OnMouseDown(self, button)
     if button == "LeftButton" then
-        local Type, _, ItemLink = GetCursorInfo()
-        ClearCursor()
-        if IAAM.CORE_GetName("player") == IAAM_Frame_Title:GetText() then
-            if Type == "item" then
-                IAAM.Popup_ItemLink = ItemLink
-                StaticPopup_Show("IAAM.Popup_AddItem")
-            end
-        end
+        IAAM.VW.OnReceiveDrag(nil)
     end
 end
 
 --============================================================
 --
---             IAAM_FRAME_OnHide()
+--             IAAM.VW.OnHide()
 --
-function IAAM_FRAME_OnHide(self)
-    IAAM.DEBUG_Print(false, "IAAM_FRAME_OnHide()")
-    PlaySound(SOUNDKIT.IG_CHARACTER_INFO_CLOSE);
+function IAAM.VW.OnHide(self)
+    IAAM.DEBUG.Print(false, "IAAM.VW.OnHide()")
+    PlaySound(SOUNDKIT.IG_CHARACTER_INFO_CLOSE)
 end
 
 --============================================================
 --
---             IAAM_FRAME_OnLoad()
+--             IAAM.VW.OnLoad()
 --
---  Main entry point of this --addon
---
-function IAAM_FRAME_OnLoad(self)
-    IAAM.DEBUG_Print(false, "IAAM_FRAME_OnLoad()")
-    IAAM_Frame.Page = 1
-    --
-    -- Get toc version for this build
-    --
-    _, _, _, IAAM.TocVersion = GetBuildInfo()
+function IAAM.VW.OnLoad(self)
+    IAAM.DEBUG.Print(false, "IAAM.VW.OnLoad()")
+    IAAM_VW.Page = 1
     --
     -- Make window movable
     --
@@ -199,79 +200,87 @@ function IAAM_FRAME_OnLoad(self)
     --
     -- Set up item buttons
     --
-    for i = 1, IAAM.ITEMS_PER_PAGE do
-        local ItemButton = _G["IAAM_Frame_Item"..i.."ItemButton"]
-        ItemButton:SetScript("OnClick", IAAM.FRAME_ItemButton_OnClick)
-        ItemButton:SetScript("OnEnter", IAAM.FRAME_Item_OnEnter)
-        ItemButton:SetScript("OnLeave", IAAM.FRAME_Item_OnLeave)
-        ItemButton.UpdateTooltip = IAAM.FRAME_Item_OnEnter
+    for i = 1, IAAM.VW.ITEMS_PER_PAGE do
+        local ItemButton = IAAM_VW["FrameItem"..i].ItemButton
+        ItemButton:SetScript("OnClick", IAAM.VW.ItemButton.OnClick)
+        ItemButton:SetScript("OnEnter", IAAM.VW.ItemButton.OnEnter)
+        ItemButton:SetScript("OnLeave", IAAM.VW.ItemButton.OnLeave)
+        ItemButton.UpdateTooltip = IAAM.VW.ItemButton.OnEnter
     end
     --
-    -- Set core event handlers
+    -- Set scripts
     --
-    for Key in pairs(IAAM.EVENT_Handlers) do
-        _G[self:GetName()][Key] = IAAM.EVENT_Handlers[Key]
-        _G[self:GetName()]:RegisterEvent(Key)
-        IAAM.DEBUG_Print(false, "Core: Registered event: " .. Key)
+    IAAM_VW:SetScript("OnHide", IAAM.VW.OnHide)
+    IAAM_VW:SetScript("OnShow", IAAM.VW.OnShow)
+    IAAM_VW:SetScript("OnMouseDown", IAAM.VW.OnMouseDown)
+    IAAM_VW:SetScript("OnMouseWheel", IAAM.VW.OnMouseWheel)
+    IAAM_VW:SetScript("OnReceiveDrag", IAAM.VW.OnReceiveDrag)
+    IAAM_VW.NextPageButton:SetScript("OnClick", IAAM.VW.NextPageButton.OnClick)
+    IAAM_VW.PrevPageButton:SetScript("OnClick", IAAM.VW.PrevPageButton.OnClick)
+end
+
+--============================================================
+--
+--             IAAM.VW.HideItems()
+--
+function IAAM.VW.HideItems()
+    IAAM.DEBUG.Print(false, "IAAM.VW.HideItems()")
+    for i = 1, IAAM.VW.ITEMS_PER_PAGE do
+        IAAM_VW["FrameItem"..i]:Hide()
     end
 end
 
 --============================================================
 --
---             IAAM.FRAME_HideItems()
+--             IAAM.VW.OnShow()
 --
-function IAAM.FRAME_HideItems()
-    IAAM.DEBUG_Print(false, "IAAM.FRAME_HideItems()")
-    for i = 1, IAAM.ITEMS_PER_PAGE do
-        _G["IAAM_Frame_Item"..i]:Hide()
-    end
-end
-
---============================================================
---
---             IAAM_FRAME_OnShow()
---
-function IAAM_FRAME_OnShow(self)
-    IAAM.DEBUG_Print(false, "IAAM_FRAME_OnShow()")
+function IAAM.VW.OnShow(self)
+    IAAM.DEBUG.Print(false, "IAAM.VW.OnShow()")
     PlaySound(SOUNDKIT.IG_CHARACTER_INFO_OPEN)
     local Name = self.Name
     if Name == nil then
         self:Hide()
     else
-        IAAM_Frame_Title:SetText(Name)
+        IAAM_VW.FontStringTitle:SetText(Name)
         if Name == IAAM.CORE_GetName("player") then
-            SetPortraitTexture(IAAM_FramePortrait, "player")
+            SetPortraitTexture(IAAM_VWPortrait, "player")
         else
-            SetPortraitTexture(IAAM_FramePortrait, "target")
+            SetPortraitTexture(IAAM_VWPortrait, Name)
+        end
+        _, TextureType = GetTextureInfo(IAAM_VWPortrait)
+        if TextureType == "Unknown" then
+            ButtonFrameTemplate_HidePortrait(IAAM_VW)
+        else
+            ButtonFrameTemplate_ShowPortrait(IAAM_VW)
         end
     end
-    IAAM_Frame_Page:SetText(IAAM.FRAME_GetPageString())
-    IAAM.FRAME_Update()
+    IAAM_VW.FontStringPage:SetText(IAAM.VW.GetPageString())
+    IAAM.VW.Update()
 end
 
 --============================================================
 --
---             IAAM_FRAME_OnMouseWheel()
+--             IAAM.VW.OnMouseWheel()
 --
-function IAAM_FRAME_OnMouseWheel(self, value)
-    IAAM.DEBUG_Print(false, "IAAM_FRAME_OnMouseWheel()")
+function IAAM.VW.OnMouseWheel(self, value)
+    IAAM.DEBUG.Print(false, "IAAM.VW.OnMouseWheel()")
   if value > 0 then
-    if IAAM.PrevPageButton:IsShown() and IAAM.PrevPageButton:IsEnabled() then
-      IAAM.FRAME_PrevPageButton_OnClick(self);
+    if IAAM_VW.PrevPageButton:IsShown() and IAAM_VW.PrevPageButton:IsEnabled() then
+      IAAM.VW.PrevPageButton.OnClick(IAAM_VW.PrevPageButton)
     end
   else
-    if IAAM.NextPageButton:IsShown() and IAAM.NextPageButton:IsEnabled() then
-      IAAM.FRAME_NextPageButton_OnClick(self);
+    if IAAM_VW.NextPageButton:IsShown() and IAAM_VW.NextPageButton:IsEnabled() then
+        IAAM.VW.NextPageButton.OnClick(IAAM_VW.NextPageButton)
     end
   end
 end
 
 --============================================================
 --
---             IAAM.FRAME_Item_OnEnter()
+--             IAAM.VW.ItemButton.OnEnter()
 --
-function IAAM.FRAME_Item_OnEnter(self)
-    IAAM.DEBUG_Print(false, "IAAM.FRAME_Item_OnEnter()")
+function IAAM.VW.ItemButton.OnEnter(self)
+    IAAM.DEBUG.Print(false, "IAAM.VW.ItemButton.OnEnter()")
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
     GameTooltip:SetMerchantItem(self:GetID())
     GameTooltip_ShowCompareItem(GameTooltip)
@@ -280,92 +289,68 @@ end
 
 --============================================================
 --
---             IAAM.FRAME_Item_OnLeave()
+--             IAAM.VW.ItemButton.OnLeave()
 --
-function IAAM.FRAME_Item_OnLeave(self)
-    IAAM.DEBUG_Print(false, "IAAM.FRAME_Item_OnLeave()")
+function IAAM.VW.ItemButton.OnLeave(self)
+    IAAM.DEBUG.Print(false, "IAAM.VW.ItemButton.OnLeave()")
     GameTooltip:Hide()
 end
 
 --============================================================
 --
---             IAAM.FRAME_OpenPlayer()
+--             IAAM.VW.Open()
 --
-function IAAM.FRAME_OpenPlayer(Name)
-    IAAM.DEBUG_Print(false, "IAAM.FRAME_OpenPlayer()")
+function IAAM.VW.Open(Name)
+    IAAM.DEBUG.Print(false, "IAAM.VW.Open()")
     -- Close merchant window if open
-    if IAAM_Frame:IsShown() == true then
-        IAAM_Frame:Hide()
+    if IAAM_VW:IsShown() == true then
+        IAAM_VW:Hide()
     end
     -- If name valid, open new merchant window, no matter if it's the same player
     if IAAM.CORE_IsValidName(Name) then
         IAAM.Merchant.ItemsForSale = {}
-        IAAM_Frame.Name = Name
+        IAAM_VW.Name = Name
         IAAM.COM_SendRequestItems(Name)
     end
 end
 
 --============================================================
 --
---             IAAM.FRAME_OpenTarget()
+--             IAAM.VW.Toggle()
 --
-function IAAM.FRAME_OpenTarget()
-    IAAM.DEBUG_Print(false, "IAAM.FRAME_OpenTarget()")
-    -- Close merchant window if open
-    local MerchantWindowIsShown = IAAM_Frame:IsShown()
-    if MerchantWindowIsShown == true then
-        IAAM_Frame:Hide()
-    end
-    -- Open merchant only if it's not the same target again => Toggle
-    local Name = IAAM.CORE_GetName("target")
-    if IAAM.CORE_IsValidName(Name) then
-        if not (MerchantWindowIsShown == true and Name == IAAM_Frame.Name) then
-            IAAM.Merchant.ItemsForSale = {}
-            if Name ~= nil then
-                IAAM_Frame.Name = Name
-                IAAM.COM_SendRequestItems(Name)
-            end
-        end
-    end
-end
-
---============================================================
---
---             IAAM.FRAME_OpenCharacter()
---
-function IAAM_FRAME_OpenCharacter()
-    IAAM.DEBUG_Print(false, "IAAM_FRAME_OpenCharacter()")
-    if IAAM_Frame:IsShown() and IAAM_Frame_Title:GetText() == IAAM.CORE_GetName("player") then
-        IAAM_Frame:Hide()
+function IAAM.VW.Toggle(Name)
+    IAAM.DEBUG.Print(false, "IAAM.VW.Toggle()")
+    if IAAM_VW:IsShown() and IAAM_VW.FontStringTitle:GetText() == IAAM.CORE_GetName("player") then
+        IAAM_VW:Hide()
     else
-        IAAM_Frame:Hide()
+        IAAM_VW:Hide()
         IAAM.CORE_UpdateList()
-        IAAM_Frame.Name = IAAM.CORE_GetName("player")
-        IAAM_Frame:Show()
+        IAAM_VW.Name = Name
+        IAAM_VW:Show()
     end
 end
 
 --============================================================
 --
---             IAAM.FRAME_Update()
+--             IAAM.VW.Update()
 --
-function IAAM.FRAME_Update()
-    ItemsForSale = IAAM.FRAME_GetItemsForSaleTable()
-    IAAM.DEBUG_Print(false, "IAAM.FRAME_Update()")
+function IAAM.VW.Update()
+    ItemsForSale = IAAM.VW.GetItemsForSaleTable()
+    IAAM.DEBUG.Print(false, "IAAM.VW.Update()")
 
     local NumItems = IAAM.CORE_GetNumItems(ItemsForSale)
 
-    IAAM_Frame_Page:SetText(IAAM.FRAME_GetPageString())
+    IAAM_VW.FontStringPage:SetText(IAAM.VW.GetPageString())
 
-    IAAM.FRAME_HideItems()
-    for i = 1, IAAM.ITEMS_PER_PAGE do
-        local Index = (((IAAM_Frame.Page - 1) * IAAM.ITEMS_PER_PAGE) + i)
+    IAAM.VW.HideItems()
+    for i = 1, IAAM.VW.ITEMS_PER_PAGE do
+        local Index = (((IAAM_VW.Page - 1) * IAAM.VW.ITEMS_PER_PAGE) + i)
         if Index <= NumItems then
             local Item            = IAAM.CORE_GetItemAt(ItemsForSale, Index)
-            local ItemFrame       = _G["IAAM_Frame_Item"..i]
-            local ItemFrameButton = _G["IAAM_Frame_Item"..i.."ItemButton"]
-            local ItemFrameMoney  = _G["IAAM_Frame_Item"..i.."MoneyFrame"]
-            local ItemFrameName   = _G["IAAM_Frame_Item"..i.."Name"]
+            local ItemFrame       = IAAM_VW["FrameItem"..i]
+            local ItemFrameButton = IAAM_VW["FrameItem"..i].ItemButton
+            local ItemFrameMoney  = _G["IAAM_VWFrameItem"..i.."MoneyFrame"] -- We need to access a global name, since Blizzard isn't specifying parentKey as they did for ItemButton and other.
+            local ItemFrameName   = IAAM_VW["FrameItem"..i].Name
             IAAM.CORE_QueryItemInfo(Item)
             ItemFrameName:SetText(Item.Name)
             SetItemButtonCount(ItemFrameButton, Item.StackSize)
@@ -377,14 +362,30 @@ function IAAM.FRAME_Update()
             ItemFrameButton.link         = Item.Link
             ItemFrameButton.ItemID       = Item.ID
             ItemFrameButton.texture      = Item.Texture
-            MoneyFrame_SetMaxDisplayWidth(ItemFrameMoney, IAAM.MAX_MONEY_DISPLAY_WIDTH)
-            MoneyFrame_Update(ItemFrameMoney:GetName(), Item.Price)
+            MoneyFrame_SetMaxDisplayWidth(ItemFrameMoney, IAAM_MAX_MONEY_DISPLAY_WIDTH)
+            MoneyFrame_Update(ItemFrameMoney, Item.Price)
             SetMoneyFrameColor(ItemFrameMoney:GetName(), nil)
-            MerchantFrameItem_UpdateQuality(ItemFrame, Item.Link);
+            MerchantFrameItem_UpdateQuality(ItemFrame, Item.Link)
             ItemFrameButton.showNonrefundablePrompt = false
-            ItemFrameButton.hasItem = true;
-            ItemFrameButton:SetID(Index);
+            ItemFrameButton.hasItem = true
+            ItemFrameButton:SetID(Index)
             ItemFrame:Show()
         end
     end
 end
+
+StaticPopupDialogs["IAAM.VW.AddItemPopup"] = {
+    text           = "Specify the stack size and stack price:",
+    button1        = "Add Item",
+    button2        = "Cancel",
+    OnAccept       = IAAM.VW.AddItemPopup.OnAccept,
+    OnShow         = IAAM.VW.AddItemPopup.OnShow,
+    timeout        = 0,
+    whileDead      = true,
+    hideOnEscape   = true,
+  --preferredIndex = 3,
+    hasEditBox     = false,
+    hasItemFrame   = true,
+    hasMoneyFrame  = true,
+    height         = 200
+}

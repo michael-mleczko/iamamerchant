@@ -7,12 +7,12 @@ _G.IAAM = IAAM
 --
 --             Variables
 --
-IAAM.VERSION = "2.2.0"
-IAAM.MAX_MONEY_DISPLAY_WIDTH = 120
-IAAM.Popup_ItemLink = nil
+IAAM.CORE    = {}
+IAAM.VERSION = "2.3.0"
 
-BINDING_NAME_OPENPLAYER = "Open vendor window"
-BINDING_NAME_OPENMERCHANTTRACKER = "Open merchant tracker"
+local IAAM_MAX_MONEY_DISPLAY_WIDTH     = 120
+local BINDING_NAME_OPENPLAYER          = "Open vendor window"
+local BINDING_NAME_OPENMERCHANTTRACKER = "Open merchant tracker"
 
 --============================================================
 --============================================================
@@ -25,7 +25,7 @@ BINDING_NAME_OPENMERCHANTTRACKER = "Open merchant tracker"
 --             IAAM.CORE_AddItem()
 --
 function IAAM.CORE_AddItem(Table, Link, StackSize, Price, Quantity)
-    IAAM.DEBUG_Print(false, "IAAM.CORE_AddItem(", Table, ", "..Link..", "..StackSize..", "..Price..", "..Quantity..")")
+    IAAM.DEBUG.Print(false, "IAAM.CORE_AddItem(", Table, ", "..Link..", "..StackSize..", "..Price..", "..Quantity..")")
     Table[""..Link]           = {}
     Table[""..Link].Link      = Link
     Table[""..Link].StackSize = StackSize
@@ -40,7 +40,7 @@ end
 --
 function IAAM.CORE_UpdateList()
     for k, v in pairs(IAAM_Character.ItemsForSale) do
-        v.Quantity = GetItemCount(v.Link, true, true)
+        v.Quantity = C_Item.GetItemCount(v.Link, true, true)
     end
 end
 
@@ -102,7 +102,7 @@ end
 --             IAAM.CORE_GetData()
 --
 function IAAM.CORE_GetData(Data)
-    IAAM.DEBUG_Print(false, "IAAM.CORE_GetData()")
+    IAAM.DEBUG.Print(false, "IAAM.CORE_GetData()")
     local Index = 1
     local Table = {}
     local Link, Data = IAAM.LINK_Get(Data)
@@ -163,13 +163,13 @@ end
 --             IAAM.CORE_PrintCommands()
 --
 function IAAM.CORE_PrintCommands(index)
+    print(" ")
+    print("IAmAMerchant (v"..IAAM.VERSION..")")
+    print(" ")
+    print("Slash command list:")
     print("/iaam add <item_link> <item_count> <price>")
     print("/iaam toggleshowall")
-    print("/iaam on")
-    print("/iaam off")
     print("/iaam clear")
-    print("/iaam sound on")
-    print("/iaam sound off")
 end
 
 --============================================================

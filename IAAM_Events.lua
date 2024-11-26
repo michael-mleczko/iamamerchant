@@ -6,30 +6,58 @@ local _, IAAM = ...
 --             Events
 --
 
-IAAM.EVENT_Handlers = {}
+IAAM.EVENT          = {}
+IAAM.EVENT.Handlers = {}
 
 --============================================================
 --
---             IAAM_EVENT_GlobalHandler()
+--             IAAM.EVENT.EventHandler()
 --
-function IAAM_EVENT_GlobalHandler(self, Event, ...)
-    IAAM.DEBUG_Print(false, "Core: Event "..Event)
-    IAAM.EVENT_Handlers[Event](...)
+function IAAM.EVENT.EventHandler(self, Event, ...)
+    IAAM.DEBUG.Print(false, "[EVENT] "..Event)
+    IAAM.EVENT.Handlers[Event](...)
+end
+
+
+--============================================================
+--
+--             PORTRAITS_UPDATED()
+--
+function IAAM.EVENT.Handlers.PORTRAITS_UPDATED(...)
+    IAAM.DEBUG.Print(false, "[EVENT] PORTRAITS_UPDATED")
+    local UpdateUnit = ...
+    if UpdateUnit and UpdateUnit == IAAM_VWPortrait.unit then
+        ButtonFrameTemplate_ShowPortrait(IAAM_VW)
+        SetPortraitTexture(IAAM_VWPortrait, UpdateUnit)
+    end
+end
+
+--============================================================
+--
+--             UNIT_PORTRAIT_UPDATE()
+--
+function IAAM.EVENT.Handlers.UNIT_PORTRAIT_UPDATE(...)
+    IAAM.DEBUG.Print(false, "[EVENT] UNIT_PORTRAIT_UPDATE")
+    local UpdateUnit = ...
+    if UpdateUnit and UpdateUnit == IAAM_VWPortrait.unit then
+        ButtonFrameTemplate_ShowPortrait(IAAM_VW)
+        SetPortraitTexture(IAAM_VWPortrait, UpdateUnit)
+    end
 end
 
 --============================================================
 --
 --             CHAT_MSG_CHANNEL()
 --
-function IAAM.EVENT_Handlers.CHAT_MSG_CHANNEL(...)
+function IAAM.EVENT.Handlers.CHAT_MSG_CHANNEL(...)
     Data, Sender, _, ChannelName = ...
     --
     -- Handle YELL
     --
     _, ChannelName = strsplit(" ", ChannelName)
-    if ChannelName == IAAM.COM_Channel then
-        if Data == IAAM.COM_COMMAND_QueryBroadcast then
-            IAAM.DEBUG_Print(false, "CHAT_MSG_CHANNEL: IAAM.COM_COMMAND_QueryBroadcast")
+    if ChannelName == IAAM.COM.ChannelName then
+        if Data == IAAM.COM.COMMAND.QueryBroadcast then
+            IAAM.DEBUG.Print(false, "CHAT_MSG_CHANNEL: IAAM.COM.COMMAND.QueryBroadcast")
             IAAM.COM_QueryBroadcastResponse(Sender)
         end
     end
@@ -39,14 +67,14 @@ end
 --
 --             CHAT_MSG_ADDON()
 --
-function IAAM.EVENT_Handlers.CHAT_MSG_ADDON(...)
+function IAAM.EVENT.Handlers.CHAT_MSG_ADDON(...)
     local Prefix, Data, Channel, Sender, Target, _, _, Name, _  = ...
     --
     -- Handle YELL
     --
     if Channel == "YELL" or Channel == "GUILD" or Channel == "CHANNEL" then
-        if Data == IAAM.COM_COMMAND_QueryBroadcast then
-            IAAM.DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM.COM_COMMAND_QueryBroadcast")
+        if Data == IAAM.COM.COMMAND.QueryBroadcast then
+            IAAM.DEBUG.Print(false, "CHAT_MSG_ADDON: IAAM.COM.COMMAND.QueryBroadcast")
             IAAM.COM_QueryBroadcastResponse(Target)
         end
     end
@@ -66,21 +94,21 @@ function IAAM.EVENT_Handlers.CHAT_MSG_ADDON(...)
         -- Table[1] contains the communication command
         --
         local Command = Table[1]
-        if Command == IAAM.COM_COMMAND_RequestItemsResponse then
-            IAAM.DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM.COM_COMMAND_RequestItemsResponse")
+        if Command == IAAM.COM.COMMAND.RequestItemsResponse then
+            IAAM.DEBUG.Print(false, "CHAT_MSG_ADDON: IAAM.COM.COMMAND.RequestItemsResponse")
             --
             -- Item received
             --
-            if Target == IAAM_Frame.Name then
+            if Target == IAAM_VW.Name then
                 --                                            Link  StackSize Price     Quantity
                 IAAM.CORE_AddItem(IAAM.Merchant.ItemsForSale, Link, Table[2], Table[3], Table[4])
-                if IAAM_Frame:IsShown() == false then
-                    IAAM_Frame:Show()
+                if IAAM_VW:IsShown() == false then
+                    IAAM_VW:Show()
                 end
-                IAAM.FRAME_Update()
+                IAAM.VW.Update()
             end
-        elseif Command == IAAM.COM_COMMAND_RequestItems then
-            IAAM.DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM.COM_COMMAND_RequestItems")
+        elseif Command == IAAM.COM.COMMAND.RequestItems then
+            IAAM.DEBUG.Print(false, "CHAT_MSG_ADDON: IAAM.COM.COMMAND.RequestItems")
             --
             -- Request item list received from a player.
             -- Send your merchant information.
@@ -88,9 +116,8 @@ function IAAM.EVENT_Handlers.CHAT_MSG_ADDON(...)
             for Key, ItemForSale in pairs(IAAM_Character.ItemsForSale) do
                 IAAM.COM_SendItem(Target, ItemForSale.Link, ItemForSale.StackSize, ItemForSale.Price)
             end
-        elseif Command == IAAM.COM_COMMAND_QueryBroadcastResponse then
-            IAAM.DEBUG_Print(false, "CHAT_MSG_ADDON: IAAM.COM_COMMAND_QueryBroadcastResponse")
-            print("ShowAll", IAAM_Character.ShowAll)
+        elseif Command == IAAM.COM.COMMAND.QueryBroadcastResponse then
+            IAAM.DEBUG.Print(false, "CHAT_MSG_ADDON: IAAM.COM.COMMAND.QueryBroadcastResponse")
             if IAAM_Character.ShowAll == true or Table[2] > 0 then
                 if IAAM_MT.DataTable ~= nil then  -- Avoid handling received reponses after a reload
                     IAAM_MT.DataTable:InsertTable({
@@ -108,9 +135,15 @@ end
 --
 --  Secondary entry point of this addon
 --
-function IAAM.EVENT_Handlers.VARIABLES_LOADED(event, ...)
-    IAAM.DEBUG_Print(false, "Core: Variables loaded")
-
+function IAAM.EVENT.Handlers.VARIABLES_LOADED(event, ...)
+    IAAM.DEBUG.Print(false, "Core: Variables loaded")
+    --
+    -- Get toc version for this build
+    --
+    _, _, _, IAAM.TocVersion = GetBuildInfo()
+    --
+    -- Initialize variables if not yet done.
+    --
     if type(IAAM.Merchant) ~= "table" then
         IAAM.Merchant = {}
     end
@@ -123,27 +156,28 @@ function IAAM.EVENT_Handlers.VARIABLES_LOADED(event, ...)
     if type(IAAM_Character.ItemsForSale) ~= "table" then
         IAAM_Character.ItemsForSale = {}
     end
-    if IAAM_Character.IsEnabled == nil then
-        IAAM_Character.IsEnabled = true
-    end
     if IAAM_Character.ShowAll == nil then
         IAAM_Character.ShowAll = false
     end
-    if type(IAAM.Account) ~= "table" then
-        IAAM.Account = {}
+    if type(IAAM_Account) ~= "table" then
+        IAAM_Account = {}
     end
-    if type(IAAM.Account.Merchants) ~= "table" then
-        IAAM.Account.Merchants = {}
-    end
-    if type(IAAM_Character.IsSoundEnabled) ~= "boolean" then
-        IAAM_Character.IsSoundEnabled = false
-    end
-    IAAM.COM_Init()
-    --AutoQueryMixin:Init()
+    IAAM.COM.Init()
     --
     -- Make frames close on ESC
     --
-    tinsert(UISpecialFrames, "IAAM_Frame")
+    tinsert(UISpecialFrames, "IAAM_VW")
     tinsert(UISpecialFrames, "IAAM_MT")
     print("IAmAMerchant (v"..IAAM.VERSION..")")
+end
+
+--
+-- Initialize event handler
+--
+IAAM.EVENT.Frame = CreateFrame("FRAME", "EventFrame")
+IAAM.EVENT.Frame:SetScript("OnEvent", IAAM.EVENT.EventHandler)
+for Key in pairs(IAAM.EVENT.Handlers) do
+    --_G[self:GetName()][Key] = IAAM.EVENT.Handlers[Key]
+    IAAM.EVENT.Frame:RegisterEvent(Key)
+    IAAM.DEBUG.Print(false, "Core: Registered event: "..Key)
 end

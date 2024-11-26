@@ -1,14 +1,12 @@
-IAmAMerchant Classic (v2.2.0)
+# IAmAMerchant Classic (v2.3.0)
 
-Purpose:
-========
+## Purpose
 This addon allows you to offer items you want to sell to other players and browse the items other players want to sell by using the vendor window used by NPCs.
 Items that you want to sell can be added to your vendor window with an optional price and an optional stack number.
 The vendor window automatically shows the quantity of each item that was added to the vendor window including items located on the bank.
 Merchants can be found by using the merchant tracker which shows all merchants in your guild or in the world that have items for sale.
 
-Quick Guide:
-============
+## Quick Guide
 - The default key bindings used are shift-ctrl-F5 to open your vendor window to edit your items for sale and shift-ctrl-F6 to open the merchant tracker.
 - Open your vendor window and drag and drop an item from your bag into the vendor window.
 - A dialogue window will open. Enter the copper price per unit for your item and press enter or click on "Add item".
@@ -20,8 +18,7 @@ Quick Guide:
 - Get in contact with the player to buy items.
 - Type "/iaam" for a list of commands.
 
-Bug reports:
-============
+## Bug reports
 If any bugs were found, please report them with a detailed description on how to reproduce the bug.
 Bugs can be reported on the addon's curseforge and wowinterface sites or by messaging me on reddit (NukiWolf2).
 
@@ -33,8 +30,21 @@ Your bug report should answer following question:
     - Does the bug also occur if all other addons are disabled?
     - If not: Which addons are you using?
 
-Release Notes:
-==============
+## Release Notes
+- v2.3.0
+  - Updated client version.
+  - Fixed joining of IAmAMerchant channel.
+    Channel will now only be joined when there's already another existing and visible channel.
+    This shall prevent IAmAMerchant to be the first channel.
+- v2.2.2
+  - Improved popup for adding items.
+    - Stack size can be specified.
+    - The entered copper price is shown in gold, silver, and copper beneath the stack price input field.
+  - Unfortunately, portraits of players might not always be shown due to technical reasons. Thus the portrait is removed in those cases.
+- v2.2.1
+  - Removed obsolete slash commands.
+  - Fixed bug and removed unintentional chat output.
+  - Replaced ReadMe.txt by README.md.
 - v2.2.0
   - Replaced query surrounding functionality with query world.
     This allows to list all merchants that are online.

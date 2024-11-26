@@ -37,7 +37,7 @@ function IAAM_MT_Mixin:OnLoad()
     --
     -- Make required initialization to make window resizable
     --
-	self.ResizeButton:Init(self, 0, 0);  -- Frame, MinPanelWidth, MinPanelHeight
+	self.ResizeButton:Init(self, 0, 0)  -- Frame, MinPanelWidth, MinPanelHeight
     --
     -- Initialize QueryYellButton
     --
@@ -84,7 +84,7 @@ end
 IAAM_MT_ScrollListButtonMixin = {}
 
 function IAAM_MT_ScrollListButtonMixin:OnClick()
-    IAAM.FRAME_OpenPlayer(self.Data.Player)
+    IAAM.VW.Open(self.Data.Player)
 end
 
 function IAAM_MT_ScrollListButtonMixin:OnEnter()
@@ -96,7 +96,7 @@ end
 function IAAM_MT_ScrollListButtonMixin:OnLeave()
     local r, g, b, _ = self:GetBackdropColor()
     self:SetBackdropColor(r, g, b, 0.5)
-    SetCursor(nil);
+    SetCursor(nil)
 end
 
 --============================================================
@@ -109,10 +109,6 @@ QueryYellMixin = {}
 
 function QueryYellMixin:OnClick(Button, Down)
     if self.Enabled ~= false then
-        --IAAM_MT_MerchantCounter.MerchantCountPrev = 0
-        --IAAM_MT_MerchantCounter:Hide()
-        --AutoQueryCheckButton:SetChecked(false)
-        --IAAM_Character.AutoQueryChecked = false
         self:GetParent():GetParent().DataTable = CreateDataProvider()
         IAAM_MT.ScrollList.ScrollBox:SetDataProvider(self:GetParent():GetParent().DataTable)
         IAAM.COM_QueryBroadcastWorld()
@@ -137,10 +133,6 @@ QueryGuildMixin = {}
 
 function QueryGuildMixin:OnClick(Button, Down)
     if self.Enabled ~= false then
-        --IAAM_MT_MerchantCounter.MerchantCountPrev = 0
-        --IAAM_MT_MerchantCounter:Hide()
-        --AutoQueryCheckButton:SetChecked(false)
-        --IAAM_Character.AutoQueryChecked = false
         self:GetParent():GetParent().DataTable = CreateDataProvider()
         IAAM_MT.ScrollList.ScrollBox:SetDataProvider(self:GetParent():GetParent().DataTable)
         IAAM.COM_QueryBroadcastGuild()
@@ -161,7 +153,7 @@ end
 --             IAAM_MT_MenuButtonMixin
 --
 
-IAAM_MT_MenuButtonMixin = {};
+IAAM_MT_MenuButtonMixin = {}
 
 function IAAM_MT_MenuButtonMixin:OnEnter()
 	self.MouseoverOverlay:Show()

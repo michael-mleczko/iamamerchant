@@ -18,7 +18,7 @@ SLASH_IAAMSlashCommand1 = "/iaam"
 --    * enable or disable iaam
 --
 function SlashCmdList.IAAMSlashCommand(Message, EditBox)
-    IAAM.DEBUG_Print(false, "Core: Slash command")
+    IAAM.DEBUG.Print(false, "Core: Slash command")
     --
     -- Store space seperated arguments in a table
     --
@@ -62,13 +62,13 @@ function SlashCmdList.IAAMSlashCommand(Message, EditBox)
         --
         -- Add item to list characters for sale list
         --
-        IAAM.CORE_AddItem(IAAM_Character.ItemsForSale, Table.Link, Table[2], Table[3], GetItemCount(Table.Link, true, true))
+        IAAM.CORE_AddItem(IAAM_Character.ItemsForSale, Table.Link, Table[2], Table[3], C_Item.GetItemCount(Table.Link, true, true))
         --
         -- If own merchant window is open, add it to targets for sale list and update the window
         -- so that the added item will be displayed instantly
         --
-        if IAAM.Frame:IsShown() then
-            IAAM.FRAME_Update()
+        if IAAM_VW:IsShown() then
+            IAAM.VW.Update()
         end
         print("IAmAMerchant: Item "..Table.Link.." added.")
     elseif Table[1] == "toggleshowall" then
@@ -79,25 +79,8 @@ function SlashCmdList.IAAMSlashCommand(Message, EditBox)
             print("IAmAMerchant now only shows merchants that have items for sale.")
             IAAM_Character.ShowAll = false
         end
-    elseif Table[1] == "on" then
-        IAAM_Character.IsEnabled = true
-    elseif Table[1] == "off" then
-        IAAM_Character.IsEnabled = false
     elseif Table[1] == "clear" then
         IAAM_Character.ItemsForSale = {}
-    elseif Table[1] == "help" then
-        print(" ")
-        print("IAmAMerchant (v"..IAAM.VERSION..")")
-        print(" ")
-        print("Slash command list:")
-        IAAM.CORE_PrintCommands()
-        print(" ")
-    elseif Table[1] == "sound" then
-        if Table[2] == "on" then
-            IAAM_Character.IsSoundEnabled = true
-        elseif Table[2] == "off" then
-            IAAM_Character.IsSoundEnabled = false
-        end
     else
         print("IAmAMerchant: Wrong command!")
         IAAM.CORE_PrintCommands()
