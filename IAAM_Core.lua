@@ -136,10 +136,10 @@ function IAAM.CORE.QueryItemInfo(Item)
     -- Query only if information is missing
     --
     if Item.Texture == nil or Item.ID == nil then
-        local Name, _, _, _, _, _, _, _, _, Texture = GetItemInfo(Item.Link)
+        local Name, _, _, _, _, _, _, _, _, Texture = C_Item.GetItemInfo(Item.Link)
         Item.Name    = Name
         Item.Texture = Texture
-        Item.ID      = GetItemInfoInstant(Item.Link)
+        Item.ID      = C_Item.GetItemInfoInstant(Item.Link)
     end
 end
 

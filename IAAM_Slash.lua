@@ -45,7 +45,7 @@ function IAAM.SLASH.HandleCommand(Message, EditBox)
         --
         -- Check if item link is valid
         --
-        local ItemID = Table.Link and GetItemInfoInstant(Table.Link)
+        local ItemID = Table.Link and C_Item.GetItemInfoInstant(Table.Link)
         if ItemID == nil then
             print("IAmAMerchant: Couldn't find item!")
             IAAM.CORE.PrintCommands()
