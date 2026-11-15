@@ -125,10 +125,17 @@ function IAAM.EVENT.Handlers.CHAT_MSG_ADDON(...)
             end
         elseif Command == IAAM.COM.COMMAND.QueryBroadcastResponse then
             IAAM.DEBUG.Print(false, "CHAT_MSG_ADDON: IAAM.COM.COMMAND.QueryBroadcastResponse")
-            if IAAM_Character.ShowAll == true or Table[2] > 0 then
+            --
+            -- Ignore malformed responses without a valid item count
+            --
+            local NumItems = tonumber(Table[2])
+            if NumItems == nil then
+                return
+            end
+            if IAAM_Character.ShowAll == true or NumItems > 0 then
                 if IAAM_MT.DataTable ~= nil then  -- Avoid handling received reponses after a reload
                     IAAM_MT.DataTable:InsertTable({
-                        { Player = Sender, NumItems = Table[2] },
+                        { Player = Sender, NumItems = NumItems },
                     })
                 end
             end
