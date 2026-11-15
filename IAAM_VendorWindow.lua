@@ -39,10 +39,21 @@ end
 
 --============================================================
 --
+--             IAAM.VW.GetNumPages()
+--
+--  An empty list still has one (empty) page.
+--
+function IAAM.VW.GetNumPages()
+    local NumItems = IAAM.CORE_GetNumItems(IAAM.VW.GetItemsForSaleTable())
+    return math.max(1, math.ceil(NumItems / IAAM.VW.ITEMS_PER_PAGE))
+end
+
+--============================================================
+--
 --             IAAM.VW.GetPageString()
 --
 function IAAM.VW.GetPageString(Merchant)
-    return "Page "..IAAM_VW.Page.." of "..math.ceil(IAAM.CORE_GetNumItems(IAAM.VW.GetItemsForSaleTable()) / IAAM.VW.ITEMS_PER_PAGE)
+    return "Page "..IAAM_VW.Page.." of "..IAAM.VW.GetNumPages()
 end
 
 --============================================================
@@ -339,6 +350,11 @@ function IAAM.VW.Update()
     IAAM.DEBUG.Print(false, "IAAM.VW.Update()")
 
     local NumItems = IAAM.CORE_GetNumItems(ItemsForSale)
+    --
+    -- Stay within the existing pages, e.g. after the last item of the
+    -- last page was removed.
+    --
+    IAAM_VW.Page = math.min(IAAM_VW.Page, IAAM.VW.GetNumPages())
 
     IAAM_VW.FontStringPage:SetText(IAAM.VW.GetPageString())
 
