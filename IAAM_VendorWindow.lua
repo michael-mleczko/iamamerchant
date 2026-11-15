@@ -283,9 +283,8 @@ end
 function IAAM.VW.ItemButton.OnEnter(self)
     IAAM.DEBUG.Print(false, "IAAM.VW.ItemButton.OnEnter()")
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-    GameTooltip:SetMerchantItem(self:GetID())
-    GameTooltip_ShowCompareItem(GameTooltip)
     GameTooltip:SetHyperlink(self.link)
+    GameTooltip_ShowCompareItem(GameTooltip)
 end
 
 --============================================================
