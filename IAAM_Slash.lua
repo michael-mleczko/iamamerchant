@@ -81,6 +81,10 @@ function SlashCmdList.IAAMSlashCommand(Message, EditBox)
         end
     elseif Table[1] == "clear" then
         IAAM_Character.ItemsForSale = {}
+        if IAAM_VW:IsShown() then
+            IAAM_VW.Page = 1
+            IAAM.VW.Update()
+        end
     else
         print("IAmAMerchant: Wrong command!")
         IAAM.CORE_PrintCommands()
