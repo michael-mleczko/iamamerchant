@@ -154,7 +154,7 @@ function IAAM.EVENT.Handlers.VARIABLES_LOADED(event, ...)
     --
     -- Get toc version for this build
     --
-    _, _, _, IAAM.TocVersion = GetBuildInfo()
+    IAAM.TocVersion = select(4, GetBuildInfo())
     --
     -- Initialize variables if not yet done.
     --
