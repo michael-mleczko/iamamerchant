@@ -68,7 +68,7 @@ end
 --             CHAT_MSG_ADDON()
 --
 function IAAM.EVENT.Handlers.CHAT_MSG_ADDON(...)
-    local Prefix, Data, Channel, Sender, Target, _, _, Name, _  = ...
+    local Prefix, Data, Channel, Sender = ...
     --
     -- CHAT_MSG_ADDON fires for the messages of every addon that registered
     -- a prefix. Only handle messages that were sent by IAmAMerchant.
@@ -82,7 +82,7 @@ function IAAM.EVENT.Handlers.CHAT_MSG_ADDON(...)
     if Channel == "YELL" or Channel == "GUILD" or Channel == "CHANNEL" then
         if Data == IAAM.COM.COMMAND.QueryBroadcast then
             IAAM.DEBUG.Print(false, "CHAT_MSG_ADDON: IAAM.COM.COMMAND.QueryBroadcast")
-            IAAM.COM_QueryBroadcastResponse(Target)
+            IAAM.COM_QueryBroadcastResponse(Sender)
         end
     end
     --
@@ -106,7 +106,7 @@ function IAAM.EVENT.Handlers.CHAT_MSG_ADDON(...)
             --
             -- Item received
             --
-            if Target == IAAM_VW.Name then
+            if Sender == IAAM_VW.Name then
                 --                                            Link  StackSize Price     Quantity
                 IAAM.CORE_AddItem(IAAM.Merchant.ItemsForSale, Link, Table[2], Table[3], Table[4])
                 if IAAM_VW:IsShown() == false then
@@ -121,14 +121,14 @@ function IAAM.EVENT.Handlers.CHAT_MSG_ADDON(...)
             -- Send your merchant information.
             --
             for Key, ItemForSale in pairs(IAAM_Character.ItemsForSale) do
-                IAAM.COM_SendItem(Target, ItemForSale.Link, ItemForSale.StackSize, ItemForSale.Price)
+                IAAM.COM_SendItem(Sender, ItemForSale.Link, ItemForSale.StackSize, ItemForSale.Price)
             end
         elseif Command == IAAM.COM.COMMAND.QueryBroadcastResponse then
             IAAM.DEBUG.Print(false, "CHAT_MSG_ADDON: IAAM.COM.COMMAND.QueryBroadcastResponse")
             if IAAM_Character.ShowAll == true or Table[2] > 0 then
                 if IAAM_MT.DataTable ~= nil then  -- Avoid handling received reponses after a reload
                     IAAM_MT.DataTable:InsertTable({
-                        { Player = Target, NumItems = Table[2] },
+                        { Player = Sender, NumItems = Table[2] },
                     })
                 end
             end
