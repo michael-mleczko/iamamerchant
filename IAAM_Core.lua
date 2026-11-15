@@ -10,7 +10,6 @@ _G.IAAM = IAAM
 IAAM.CORE    = {}
 IAAM.VERSION = "2.3.0"
 
-local IAAM_MAX_MONEY_DISPLAY_WIDTH     = 120
 local BINDING_NAME_OPENPLAYER          = "Open vendor window"
 local BINDING_NAME_OPENMERCHANTTRACKER = "Open merchant tracker"
 

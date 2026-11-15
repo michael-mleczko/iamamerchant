@@ -6,9 +6,10 @@ local _, IAAM = ...
 --             Variables
 --
 
-IAAM.VW                 = {}
-IAAM.VW.ITEMS_PER_PAGE  = 12
-IAAM.VW.UPDATE_INTERVAL = 1.0
+IAAM.VW                         = {}
+IAAM.VW.ITEMS_PER_PAGE          = 12
+IAAM.VW.UPDATE_INTERVAL         = 1.0
+IAAM.VW.MAX_MONEY_DISPLAY_WIDTH = 120
 
 IAAM.VW.ItemButton        = {}
 IAAM.VW.NextPageButton    = {}
@@ -362,7 +363,7 @@ function IAAM.VW.Update()
             ItemFrameButton.link         = Item.Link
             ItemFrameButton.ItemID       = Item.ID
             ItemFrameButton.texture      = Item.Texture
-            MoneyFrame_SetMaxDisplayWidth(ItemFrameMoney, IAAM_MAX_MONEY_DISPLAY_WIDTH)
+            MoneyFrame_SetMaxDisplayWidth(ItemFrameMoney, IAAM.VW.MAX_MONEY_DISPLAY_WIDTH)
             MoneyFrame_Update(ItemFrameMoney, Item.Price)
             SetMoneyFrameColor(ItemFrameMoney:GetName(), nil)
             MerchantFrameItem_UpdateQuality(ItemFrame, Item.Link)
