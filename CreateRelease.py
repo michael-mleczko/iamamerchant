@@ -23,6 +23,7 @@ with zipfile.ZipFile(f"IAmAMerchant_v{version}.zip", "w") as archive:
     archive.write("IAAM_Com.lua", "IAmAMerchant/IAAM_Com.lua")
     archive.write("IAAM_Core.lua", "IAmAMerchant/IAAM_Core.lua")
     archive.write("IAAM_Debug.lua", "IAmAMerchant/IAAM_Debug.lua")
+    archive.write("IAAM_Diag.lua", "IAmAMerchant/IAAM_Diag.lua")
     archive.write("IAAM_Events.lua", "IAmAMerchant/IAAM_Events.lua")
     archive.write("IAAM_Link.lua", "IAmAMerchant/IAAM_Link.lua")
     archive.write("IAAM_MerchantTracker.lua", "IAmAMerchant/IAAM_MerchantTracker.lua")

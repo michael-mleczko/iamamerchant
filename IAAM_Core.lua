@@ -174,6 +174,9 @@ function IAAM.CORE.PrintCommands(index)
     print("/iaam add <item_link> <item_count> <price>")
     print("/iaam toggleshowall")
     print("/iaam clear")
+    print("/iaam diag - test communication with this character only")
+    print("/iaam diag <name> - test communication with another player")
+    print("/iaam diag show - show the last diagnosis report")
 end
 
 --============================================================

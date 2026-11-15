@@ -20,6 +20,19 @@ IAAM.SLASH = {}
 function IAAM.SLASH.HandleCommand(Message, EditBox)
     IAAM.DEBUG.Print(false, "Core: Slash command")
     --
+    -- Diagnosis: /iaam diag [show | <partner name>]
+    -- Handled first, because partner names on Forever contain a space.
+    --
+    local Command, Argument = string.match(Message, "^%s*(%S+)%s*(.-)%s*$")
+    if Command and string.lower(Command) == "diag" then
+        if string.lower(Argument) == "show" then
+            IAAM.DIAG.ShowLastReport()
+        else
+            IAAM.DIAG.Start(Argument ~= "" and Argument or nil)
+        end
+        return
+    end
+    --
     -- Store space seperated arguments in a table
     --
     local Table = IAAM.CORE.GetData(Message)
