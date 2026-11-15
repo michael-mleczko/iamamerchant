@@ -41,6 +41,8 @@ IAAM.DIAG.RunID     = 0
 IAAM.DIAG.Lines     = {}
 IAAM.DIAG.Inbox     = {}   -- Received messages of the current session
 IAAM.DIAG.Incoming  = {}   -- Incoming chunked lists by sender and token
+IAAM.DIAG.TriedTargets = {}   -- Whisper targets tried by the diagnosis
+IAAM.DIAG.NotFound     = {}   -- Targets for which the game said "No player named ..."
 
 --============================================================
 --
@@ -104,16 +106,97 @@ function IAAM.DIAG.IsSuccess(Result)
 end
 
 --
+-- Separators the game uses between first name and surname. On WoW
+-- Forever, UnitName returns the surname where the realm used to be.
+--
+function IAAM.DIAG.GetSeparators()
+    local Separators = Constants and Constants.CharacterNameSeparatorConsts
+    if type(Separators) ~= "table" then
+        return nil, nil
+    end
+    return Separators.CHARACTERNAME_SURNAME_SEPARATOR, Separators.CHARACTERNAME_REALMNAME_SEPARATOR
+end
+
+--
+-- Returns the possible spellings of a name for whisper targets, the
+-- spelling used by Blizzard's whisper menu first.
+--
+function IAAM.DIAG.GetNameVariants(FirstName, Surname)
+    local Variants, Seen = {}, {}
+    local function Add(Name)
+        if Name and not Seen[Name] then
+            Seen[Name] = true
+            table.insert(Variants, Name)
+        end
+    end
+    if Surname == nil or Surname == "" then
+        Add(FirstName)
+        return Variants
+    end
+    local SurnameSeparator, RealmSeparator = IAAM.DIAG.GetSeparators()
+    if SurnameSeparator then
+        Add(FirstName..SurnameSeparator..Surname)
+    end
+    if RealmSeparator then
+        Add(FirstName..RealmSeparator..Surname)
+    end
+    Add(FirstName.." "..Surname)
+    Add(FirstName.."-"..Surname)
+    return Variants
+end
+
+function IAAM.DIAG.GetOwnNameVariants()
+    return IAAM.DIAG.GetNameVariants(UnitName("player"))
+end
+
+--
+-- Name variants of a partner name typed by the user, e.g. "Bob Builder"
+-- or "Bob-Builder". The name as typed is tried first.
+--
+function IAAM.DIAG.GetPartnerNameVariants(Input)
+    local Variants = { Input }
+    local FirstName, Surname = string.match(Input, "^([^%s%-]+)[%s%-]+(.+)$")
+    if FirstName then
+        for _, Name in ipairs(IAAM.DIAG.GetNameVariants(FirstName, Surname)) do
+            if Name ~= Input then
+                table.insert(Variants, Name)
+            end
+        end
+    end
+    return Variants
+end
+
+--
 -- Checks whether a sender name belongs to this character
 --
+function IAAM.DIAG.IsPartner(Name)
+    if Name == nil or IAAM.DIAG.Partner == nil then
+        return false
+    end
+    if Name == IAAM.DIAG.PartnerSender or Name == IAAM.DIAG.Target then
+        return true
+    end
+    for _, Variant in ipairs(IAAM.DIAG.GetPartnerNameVariants(IAAM.DIAG.Partner)) do
+        if Name == Variant then
+            return true
+        end
+    end
+    return false
+end
+
 function IAAM.DIAG.IsMe(Sender)
     if Sender == nil then
         return false
     end
-    local Name, Realm = UnitFullName("player")
-    return Sender == UnitName("player")
-        or Sender == GetUnitName("player", true)
-        or (Realm ~= nil and Sender == Name.."-"..Realm)
+    if Sender == UnitName("player") or Sender == GetUnitName("player", true) then
+        return true
+    end
+    for _, Name in ipairs(IAAM.DIAG.GetOwnNameVariants()) do
+        if Sender == Name then
+            return true
+        end
+    end
+    return false
 end
 
 --
@@ -269,6 +352,26 @@ function IAAM.DIAG.OnAddonMessage(Prefix, Text, Channel, Sender)
     IAAM.DIAG.TouchChannel()
 end
 
+--
+-- Chat filter for CHAT_MSG_SYSTEM: hides "No player named ..." for
+-- whisper targets tried by the diagnosis and remembers them for the
+-- report. Other system messages are not touched.
+--
+function IAAM.DIAG.FilterPlayerNotFound(_, _, Message)
+    if type(Message) ~= "string" or type(ERR_CHAT_PLAYER_NOT_FOUND_S) ~= "string"
+            or (issecretvalue and issecretvalue(Message)) then
+        return false
+    end
+    local LowerMessage = string.lower(Message)
+    for Name in pairs(IAAM.DIAG.TriedTargets) do
+        if LowerMessage == string.lower(string.format(ERR_CHAT_PLAYER_NOT_FOUND_S, Name)) then
+            IAAM.DIAG.NotFound[Name] = true
+            return true
+        end
+    end
+    return false
+end
+
 --============================================================
 --
 --             Test item list
@@ -382,13 +485,13 @@ end
 --
 -- Returns the display index of the channel in the channel list
 --
-function IAAM.DIAG.FindDisplayIndex()
+function IAAM.DIAG.FindDisplayIndex(ChannelName)
     local Names = {}
     for i = 1, GetNumDisplayChannels() do
         local Name, Header = GetChannelDisplayInfo(i)
         if Name and not Header then
             table.insert(Names, Name)
-            if string.lower(Name) == string.lower(IAAM.DIAG.CHANNEL_NAME) then
+            if string.lower(Name) == string.lower(ChannelName) then
                 return i, Names
             end
         end
@@ -426,6 +529,10 @@ function IAAM.DIAG.Steps.Info(Next)
     local Version, Build, BuildDate, Interface = GetBuildInfo()
     IAAM.DIAG.Add("INFO", "Client %s (build %s, %s), interface %s", tostring(Version), tostring(Build), tostring(BuildDate), tostring(Interface))
     IAAM.DIAG.Add("INFO", "Names: %s", IAAM.DIAG.GetOwnNames())
+    local SurnameSeparator, RealmSeparator = IAAM.DIAG.GetSeparators()
+    IAAM.DIAG.Add("INFO", "Name separators: surname %s, realm %s; RegionalUniqueNamesEnabled: %s",
+        IAAM.DIAG.Quote(SurnameSeparator), IAAM.DIAG.Quote(RealmSeparator),
+        tostring(type(RegionalUniqueNamesEnabled) == "function" and RegionalUniqueNamesEnabled()))
     IAAM.DIAG.Add("INFO", "Trial account: %s, veteran account: %s, in guild: %s, in instance: %s",
         tostring(IsTrialAccount and IsTrialAccount()), tostring(IsVeteranTrialAccount and IsVeteranTrialAccount()),
         tostring(IsInGuild()), tostring((IsInInstance())))
@@ -465,87 +572,124 @@ function IAAM.DIAG.Steps.JoinChannel(Next)
 end
 
 --
--- Reads the channel member list and looks for ExpectedName (or this
--- character if ExpectedName is nil).
+-- Reads the member list of the diagnosis channel and checks whether it
+-- contains this character (solo) or the partner. If the diagnosis
+-- channel doesn't appear in the channel list, the addon's own channel
+-- (IAAM.COM.ChannelName) is used instead, if this character is in it.
 --
-function IAAM.DIAG.Steps.Roster(Next, ExpectedName)
-    local DisplayIndex, Names = IAAM.DIAG.FindDisplayIndex()
-    if DisplayIndex == nil then
-        IAAM.DIAG.Add("FAIL", "Channel not found in the channel list. Listed channels: %s", table.concat(Names, ", "))
-        Next()
-        return
-    end
-    IAAM.DIAG.RosterUpdate = nil
-    SetSelectedDisplayChannel(DisplayIndex)
+function IAAM.DIAG.Steps.Roster(Next, IsPartner)
+    local DisplayIndex, Names
     IAAM.DIAG.WaitFor(function()
-        return IAAM.DIAG.RosterUpdate == DisplayIndex
-    end, IAAM.DIAG.TIMEOUT, function(Updated)
-        local Count = select(5, GetChannelDisplayInfo(DisplayIndex)) or 0
-        local Members, Found = {}, false
-        for RosterIndex = 1, Count do
-            local Name = C_ChatInfo.GetChannelRosterInfo(DisplayIndex, RosterIndex)
-            if Name then
-                table.insert(Members, IAAM.DIAG.Quote(Name))
-                if (ExpectedName and Name == ExpectedName) or (ExpectedName == nil and IAAM.DIAG.IsMe(Name)) then
-                    Found = true
+        DisplayIndex, Names = IAAM.DIAG.FindDisplayIndex(IAAM.DIAG.CHANNEL_NAME)
+        return DisplayIndex
+    end, 3, function()
+        local ChannelName = IAAM.DIAG.CHANNEL_NAME
+        if DisplayIndex == nil then
+            IAAM.DIAG.Add("INFO", "Channel %s is not in the channel list. Listed channels: %s",
+                ChannelName, table.concat(Names, ", "))
+            ChannelName = IAAM.COM and IAAM.COM.ChannelName
+            DisplayIndex = ChannelName and IAAM.DIAG.FindDisplayIndex(ChannelName)
+            if DisplayIndex == nil then
+                IAAM.DIAG.Add("FAIL", "Channel member list: no usable channel in the channel list")
+                Next()
+                return
+            end
+            IAAM.DIAG.Add("INFO", "Reading the member list of the addon channel %s instead", ChannelName)
+        end
+        IAAM.DIAG.RosterUpdate = nil
+        SetSelectedDisplayChannel(DisplayIndex)
+        IAAM.DIAG.WaitFor(function()
+            return IAAM.DIAG.RosterUpdate == DisplayIndex
+        end, IAAM.DIAG.TIMEOUT, function(Updated)
+            local Count = select(5, GetChannelDisplayInfo(DisplayIndex)) or 0
+            local Members, Found = {}, false
+            for RosterIndex = 1, Count do
+                local Name = C_ChatInfo.GetChannelRosterInfo(DisplayIndex, RosterIndex)
+                if Name then
+                    table.insert(Members, IAAM.DIAG.Quote(Name))
+                    if (IsPartner and IAAM.DIAG.IsPartner(Name)) or (not IsPartner and IAAM.DIAG.IsMe(Name)) then
+                        Found = true
+                    end
                 end
             end
-        end
-        IAAM.DIAG.Add("INFO", "Roster update event: %s, member count: %d, names read: %s",
-            Updated and "yes" or "no", Count, #Members > 0 and table.concat(Members, ", ", 1, math.min(#Members, 10)) or "none")
-        local Who = ExpectedName and "the partner" or "this character"
-        if Found then
-            IAAM.DIAG.Add("OK", "Channel member list is readable and contains %s", Who)
-        elseif #Members > 0 then
-            IAAM.DIAG.Add("FAIL", "Channel member list is readable but doesn't contain %s", Who)
-        else
-            IAAM.DIAG.Add("FAIL", "Channel member list could not be read")
-        end
-        Next()
-    end)
-end
-
-function IAAM.DIAG.Steps.WhisperSelf(Next)
-    local Token = IAAM.DIAG.NewToken()
-    local Target = UnitName("player")
-    local Result = IAAM.DIAG.Send("WHISPER", Target, "PING", Token, "self")
-    IAAM.DIAG.WaitFor(function()
-        return IAAM.DIAG.FindMessage("PONG", Token)
-    end, IAAM.DIAG.TIMEOUT, function(Pong)
-        if Pong then
-            IAAM.DIAG.Add("OK", "Whisper to self (target %s): sent %s, answer from %s, PING sender seen as %s",
-                IAAM.DIAG.Quote(Target), IAAM.DIAG.ResultName(Result), IAAM.DIAG.Quote(Pong.Sender), IAAM.DIAG.Quote(Pong.Parts[3]))
-        else
-            IAAM.DIAG.Add("FAIL", "Whisper to self (target %s): sent %s, no answer", IAAM.DIAG.Quote(Target), IAAM.DIAG.ResultName(Result))
-        end
-        Next()
-    end)
-end
-
-function IAAM.DIAG.Steps.PingPartner(Next, Partner)
-    local Token = IAAM.DIAG.NewToken()
-    local Result = IAAM.DIAG.Send("WHISPER", Partner, "PING", Token, "partner")
-    -- The partner joins the channel before answering, so wait longer
-    IAAM.DIAG.WaitFor(function()
-        return IAAM.DIAG.FindMessage("PONG", Token)
-    end, IAAM.DIAG.TIMEOUT * 2, function(Pong)
-        if Pong then
-            IAAM.DIAG.PartnerName = Pong.Sender
-            IAAM.DIAG.Add("OK", "Whisper to partner %s: sent %s, answer from %s",
-                IAAM.DIAG.Quote(Partner), IAAM.DIAG.ResultName(Result), IAAM.DIAG.Quote(Pong.Sender))
-            IAAM.DIAG.Add("INFO", "Partner sees this character as %s; partner %s; partner in channel: %s",
-                IAAM.DIAG.Quote(Pong.Parts[3]), tostring(Pong.Parts[4]), Pong.Parts[5] == "1" and "yes" or "no")
+            IAAM.DIAG.Add("INFO", "Channel %s: roster update event: %s, member count: %d, names read: %s",
+                ChannelName, Updated and "yes" or "no", Count,
+                #Members > 0 and table.concat(Members, ", ", 1, math.min(#Members, 10)) or "none")
+            local Who = IsPartner and "the partner" or "this character"
+            if Found then
+                IAAM.DIAG.Add("OK", "Member list of channel %s is readable and contains %s", ChannelName, Who)
+            elseif #Members > 0 then
+                IAAM.DIAG.Add("FAIL", "Member list of channel %s is readable but doesn't contain %s", ChannelName, Who)
+            else
+                IAAM.DIAG.Add("FAIL", "Member list of channel %s could not be read", ChannelName)
+            end
             Next()
-        else
-            IAAM.DIAG.Add("FAIL", "Whisper to partner %s: sent %s, no answer. The partner may be offline, misspelled, without this addon version, or on a trial/veteran account (those can't send addon messages).",
-                IAAM.DIAG.Quote(Partner), IAAM.DIAG.ResultName(Result))
+        end)
+    end)
+end
+
+--
+-- Sends a PING to every name variant and waits for the answers. The
+-- first variant that answered becomes IAAM.DIAG.Target, which the
+-- following steps use. IsPartner selects the partner test, where the
+-- partner joins the channel before answering.
+--
+function IAAM.DIAG.Steps.FindTarget(Next, Variants, IsPartner)
+    local Tokens, Results = {}, {}
+    for Index, Name in ipairs(Variants) do
+        IAAM.DIAG.TriedTargets[Name] = true
+        IAAM.DIAG.NotFound[Name] = nil
+        Tokens[Index] = IAAM.DIAG.NewToken()
+        Results[Index] = IAAM.DIAG.Send("WHISPER", Name, "PING", Tokens[Index], IsPartner and "partner" or "self")
+    end
+    local function AllAnswered()
+        for Index in ipairs(Variants) do
+            if not IAAM.DIAG.FindMessage("PONG", Tokens[Index]) then
+                return nil
+            end
+        end
+        return true
+    end
+    IAAM.DIAG.WaitFor(AllAnswered, IsPartner and IAAM.DIAG.TIMEOUT * 2 or IAAM.DIAG.TIMEOUT, function()
+        IAAM.DIAG.Target = nil
+        local Who = IsPartner and "partner" or "self"
+        for Index, Name in ipairs(Variants) do
+            local Pong = IAAM.DIAG.FindMessage("PONG", Tokens[Index])
+            if Pong then
+                IAAM.DIAG.Target = IAAM.DIAG.Target or Name
+                IAAM.DIAG.Add("OK", "Whisper to %s as %s: sent %s, answer from %s, our PING sender seen as %s",
+                    Who, IAAM.DIAG.Quote(Name), IAAM.DIAG.ResultName(Results[Index]),
+                    IAAM.DIAG.Quote(Pong.Sender), IAAM.DIAG.Quote(Pong.Parts[3]))
+                if IsPartner and IAAM.DIAG.PartnerSender == nil then
+                    IAAM.DIAG.PartnerSender = Pong.Sender
+                    IAAM.DIAG.Add("INFO", "Partner %s; partner in channel: %s",
+                        tostring(Pong.Parts[4]), Pong.Parts[5] == "1" and "yes" or "no")
+                end
+            else
+                IAAM.DIAG.Add("INFO", "Whisper to %s as %s: sent %s, %s",
+                    Who, IAAM.DIAG.Quote(Name), IAAM.DIAG.ResultName(Results[Index]),
+                    IAAM.DIAG.NotFound[Name] and "game says no such player" or "no answer")
+            end
+        end
+        if IAAM.DIAG.Target then
+            Next()
+        elseif IsPartner then
+            IAAM.DIAG.Add("FAIL", "Partner didn't answer to any spelling of the name. The partner may be offline, misspelled, without this addon version, or on a trial/veteran account (those can't send addon messages).")
             IAAM.DIAG.Add("SKIP", "Remaining partner tests skipped")
             IAAM.DIAG.Finish()
+        else
+            IAAM.DIAG.Add("FAIL", "Whisper to self failed for every spelling of the name")
+            Next()
         end
     end)
 end
 
 function IAAM.DIAG.Steps.ListTransfer(Next, Target)
+    if Target == nil then
+        IAAM.DIAG.Add("SKIP", "Item list transfer: no working whisper target")
+        Next()
+        return
+    end
     if type(IAAM.DIAG.GetGlobal("C_EncodingUtil.SerializeCBOR")) ~= "function" then
         IAAM.DIAG.Add("SKIP", "Item list transfer: C_EncodingUtil is missing")
         Next()
@@ -606,7 +750,7 @@ function IAAM.DIAG.Steps.Broadcast(Next, Partner)
     end, IAAM.DIAG.TIMEOUT, function(Answer)
         local Echo = IAAM.DIAG.FindMessage("CHPING", Token, IAAM.DIAG.IsMe)
         IAAM.DIAG.Add("INFO", "Channel broadcast sent: %s, own message received back: %s",
-            IAAM.DIAG.ResultName(Result), Echo and "yes" or "no")
+            IAAM.DIAG.ResultName(Result), Echo and ("yes, sender "..IAAM.DIAG.Quote(Echo.Sender)) or "no")
         if Partner then
             if Answer then
                 IAAM.DIAG.Add("OK", "Channel broadcast reached the partner (%s)", IAAM.DIAG.Quote(Answer.Sender))
@@ -664,6 +808,11 @@ end
 -- arrived. Whispers outside instances should not be throttled.
 --
 function IAAM.DIAG.Steps.WhisperBurst(Next, Target)
+    if Target == nil then
+        IAAM.DIAG.Add("SKIP", "Whisper burst: no working whisper target")
+        Next()
+        return
+    end
     local Token = IAAM.DIAG.NewToken()
     local Codes = {}
     for Index = 1, IAAM.DIAG.BURST_SIZE do
@@ -719,7 +868,8 @@ function IAAM.DIAG.Start(Partner)
     IAAM.DIAG.Running = true
     IAAM.DIAG.RunID = IAAM.DIAG.RunID + 1
     IAAM.DIAG.Partner = Partner
-    IAAM.DIAG.PartnerName = nil
+    IAAM.DIAG.PartnerSender = nil
+    IAAM.DIAG.Target = nil
     IAAM.DIAG.Lines = {}
 
     local Steps = IAAM.DIAG.Steps
@@ -729,24 +879,24 @@ function IAAM.DIAG.Start(Partner)
         Run = {
             Steps.Info,
             Steps.JoinChannel,
-            function(Next) Steps.PingPartner(Next, Partner) end,
-            function(Next) Steps.Roster(Next, IAAM.DIAG.PartnerName) end,
-            function(Next) Steps.ListTransfer(Next, Partner) end,
+            function(Next) Steps.FindTarget(Next, IAAM.DIAG.GetPartnerNameVariants(Partner), true) end,
+            function(Next) Steps.Roster(Next, true) end,
+            function(Next) Steps.ListTransfer(Next, IAAM.DIAG.Target) end,
             function(Next) Steps.Broadcast(Next, Partner) end,
-            function(Next) Steps.WhisperBurst(Next, Partner) end,
+            function(Next) Steps.WhisperBurst(Next, IAAM.DIAG.Target) end,
         }
     else
         print("IAmAMerchant: Starting diagnosis. This takes about a minute.")
         Run = {
             Steps.Info,
             Steps.JoinChannel,
-            function(Next) Steps.Roster(Next, nil) end,
-            Steps.WhisperSelf,
-            function(Next) Steps.ListTransfer(Next, UnitName("player")) end,
+            function(Next) Steps.Roster(Next, false) end,
+            function(Next) Steps.FindTarget(Next, IAAM.DIAG.GetOwnNameVariants(), false) end,
+            function(Next) Steps.ListTransfer(Next, IAAM.DIAG.Target) end,
             function(Next) Steps.Broadcast(Next, nil) end,
             Steps.Guild,
             Steps.SayYell,
-            function(Next) Steps.WhisperBurst(Next, UnitName("player")) end,
+            function(Next) Steps.WhisperBurst(Next, IAAM.DIAG.Target) end,
             Steps.ChannelBurst,
         }
     end
@@ -912,3 +1062,7 @@ IAAM.DIAG.Frame:SetScript("OnEvent", function(self, Event, ...)
 end)
 
 C_ChatInfo.RegisterAddonMessagePrefix(IAAM.DIAG.PREFIX)
+
+if ChatFrameUtil and ChatFrameUtil.AddMessageEventFilter then
+    ChatFrameUtil.AddMessageEventFilter("CHAT_MSG_SYSTEM", IAAM.DIAG.FilterPlayerNotFound)
+end
