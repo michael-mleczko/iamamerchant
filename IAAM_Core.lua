@@ -10,8 +10,13 @@ _G.IAAM = IAAM
 IAAM.CORE    = {}
 IAAM.VERSION = "2.3.0"
 
-local BINDING_NAME_OPENPLAYER          = "Open vendor window"
-local BINDING_NAME_OPENMERCHANTTRACKER = "Open merchant tracker"
+--
+-- Labels shown in the key bindings menu. The game looks them up as
+-- global variables named BINDING_NAME_<binding name from Bindings.xml>,
+-- so these must stay global.
+--
+BINDING_NAME_OPENPLAYER          = "Open vendor window"
+BINDING_NAME_OPENMERCHANTTRACKER = "Open merchant tracker"
 
 --============================================================
 --============================================================
