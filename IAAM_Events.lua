@@ -188,7 +188,7 @@ end
 --
 -- Initialize event handler
 --
-IAAM.EVENT.Frame = CreateFrame("FRAME", "EventFrame")
+IAAM.EVENT.Frame = CreateFrame("Frame")
 IAAM.EVENT.Frame:SetScript("OnEvent", IAAM.EVENT.EventHandler)
 for Key in pairs(IAAM.EVENT.Handlers) do
     --_G[self:GetName()][Key] = IAAM.EVENT.Handlers[Key]

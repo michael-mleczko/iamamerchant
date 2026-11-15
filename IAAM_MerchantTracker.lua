@@ -102,12 +102,12 @@ end
 --============================================================
 --============================================================
 --
---             QueryYellMixin
+--             IAAM_MT_QueryWorldButtonMixin
 --
 
-QueryYellMixin = {}
+IAAM_MT_QueryWorldButtonMixin = {}
 
-function QueryYellMixin:OnClick(Button, Down)
+function IAAM_MT_QueryWorldButtonMixin:OnClick(Button, Down)
     if self.Enabled ~= false then
         self:GetParent():GetParent().DataTable = CreateDataProvider()
         IAAM_MT.ScrollList.ScrollBox:SetDataProvider(self:GetParent():GetParent().DataTable)
@@ -126,12 +126,12 @@ end
 --============================================================
 --============================================================
 --
---             QueryGuildMixin
+--             IAAM_MT_QueryGuildButtonMixin
 --
 
-QueryGuildMixin = {}
+IAAM_MT_QueryGuildButtonMixin = {}
 
-function QueryGuildMixin:OnClick(Button, Down)
+function IAAM_MT_QueryGuildButtonMixin:OnClick(Button, Down)
     if self.Enabled ~= false then
         self:GetParent():GetParent().DataTable = CreateDataProvider()
         IAAM_MT.ScrollList.ScrollBox:SetDataProvider(self:GetParent():GetParent().DataTable)

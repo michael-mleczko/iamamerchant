@@ -86,7 +86,7 @@
 				<Layers>
 				</Layers>
                 <Frames>
-                    <Button parentKey="QueryYellButton" mixin="QueryYellMixin" inherits="IAAM_MT_MenuButtonTemplate">
+                    <Button parentKey="QueryYellButton" mixin="IAAM_MT_QueryWorldButtonMixin" inherits="IAAM_MT_MenuButtonTemplate">
                         <Anchors>
                             <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" x="10"/>
                         </Anchors>
@@ -94,7 +94,7 @@
                             <OnClick method="OnClick"/>
                         </Scripts>
                     </Button>
-                    <Button parentKey="QueryGuildButton" mixin="QueryGuildMixin" inherits="IAAM_MT_MenuButtonTemplate">
+                    <Button parentKey="QueryGuildButton" mixin="IAAM_MT_QueryGuildButtonMixin" inherits="IAAM_MT_MenuButtonTemplate">
                         <Anchors>
                             <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" x="150"/>
                         </Anchors>
