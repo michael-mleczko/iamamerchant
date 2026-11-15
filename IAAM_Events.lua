@@ -70,6 +70,13 @@ end
 function IAAM.EVENT.Handlers.CHAT_MSG_ADDON(...)
     local Prefix, Data, Channel, Sender, Target, _, _, Name, _  = ...
     --
+    -- CHAT_MSG_ADDON fires for the messages of every addon that registered
+    -- a prefix. Only handle messages that were sent by IAmAMerchant.
+    --
+    if Prefix ~= IAAM.COM.Prefix then
+        return
+    end
+    --
     -- Handle YELL
     --
     if Channel == "YELL" or Channel == "GUILD" or Channel == "CHANNEL" then
