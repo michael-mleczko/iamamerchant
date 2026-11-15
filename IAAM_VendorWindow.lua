@@ -165,8 +165,8 @@ function IAAM.VW.OnReceiveDrag(self)
         if Type == "item" then
             IAAM.VW.AddItemPopup.Link = ItemLink
             local ItemName, _, ItemQuality = C_Item.GetItemInfo(ItemLink)
-            r, g, b = C_Item.GetItemQualityColor(ItemQuality)
-            ItemTexture = select(10, C_Item.GetItemInfo(ItemLink))
+            local r, g, b = C_Item.GetItemQualityColor(ItemQuality)
+            local ItemTexture = select(10, C_Item.GetItemInfo(ItemLink))
             local Data = {
                 texture = ItemTexture,
                 name    = ItemName,
@@ -259,7 +259,7 @@ function IAAM.VW.OnShow(self)
         else
             SetPortraitTexture(IAAM_VWPortrait, Name)
         end
-        _, TextureType = GetTextureInfo(IAAM_VWPortrait)
+        local _, TextureType = GetTextureInfo(IAAM_VWPortrait)
         if TextureType == "Unknown" then
             ButtonFrameTemplate_HidePortrait(IAAM_VW)
         else
@@ -346,7 +346,7 @@ end
 --             IAAM.VW.Update()
 --
 function IAAM.VW.Update()
-    ItemsForSale = IAAM.VW.GetItemsForSaleTable()
+    local ItemsForSale = IAAM.VW.GetItemsForSaleTable()
     IAAM.DEBUG.Print(false, "IAAM.VW.Update()")
 
     local NumItems = IAAM.CORE_GetNumItems(ItemsForSale)

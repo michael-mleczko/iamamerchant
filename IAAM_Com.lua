@@ -47,7 +47,7 @@ function IAAM.COM.JoinChannel()
     --
     -- Initliaze IAAM channel
     --
-    Id = GetChannelName(IAAM.COM.ChannelName)
+    local Id = GetChannelName(IAAM.COM.ChannelName)
     if Id == 0 then
         JoinPermanentChannel(IAAM.COM.ChannelName, IAAM.COM.ChannelPassword)
         Id = GetChannelName(IAAM.COM.ChannelName)
@@ -96,7 +96,7 @@ end
 --
 function IAAM.COM_QueryBroadcastWorld()
     IAAM.DEBUG.Print(false, "IAAM.COM_QueryBroadcastWorld()")
-    Id = GetChannelName(IAAM.COM.ChannelName)
+    local Id = GetChannelName(IAAM.COM.ChannelName)
     if Id == 0 then
         IAAM.DEBUG.Print(false, "Cannot send addon data. Communication channel not found. Id: ", Id)
     else

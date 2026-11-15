@@ -50,7 +50,7 @@ end
 --             CHAT_MSG_CHANNEL()
 --
 function IAAM.EVENT.Handlers.CHAT_MSG_CHANNEL(...)
-    Data, Sender, _, ChannelName = ...
+    local Data, Sender, _, ChannelName = ...
     --
     -- Handle YELL
     --
