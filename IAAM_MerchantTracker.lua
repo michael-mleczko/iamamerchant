@@ -111,7 +111,7 @@ function IAAM_MT_QueryWorldButtonMixin:OnClick(Button, Down)
     if self.Enabled ~= false then
         self:GetParent():GetParent().DataTable = CreateDataProvider()
         IAAM_MT.ScrollList.ScrollBox:SetDataProvider(self:GetParent():GetParent().DataTable)
-        IAAM.COM_QueryBroadcastWorld()
+        IAAM.COM.QueryBroadcastWorld()
         self:SetEnabled(false)
         self.Label:SetAlpha(0.2)
         self.Enabled = false
@@ -135,7 +135,7 @@ function IAAM_MT_QueryGuildButtonMixin:OnClick(Button, Down)
     if self.Enabled ~= false then
         self:GetParent():GetParent().DataTable = CreateDataProvider()
         IAAM_MT.ScrollList.ScrollBox:SetDataProvider(self:GetParent():GetParent().DataTable)
-        IAAM.COM_QueryBroadcastGuild()
+        IAAM.COM.QueryBroadcastGuild()
         self:SetEnabled(false)
         self.Label:SetAlpha(0.2)
         self.Enabled = false

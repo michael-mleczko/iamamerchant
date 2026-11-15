@@ -1,6 +1,6 @@
 <Bindings>
     <Binding category="IAmAMerchant" name="OPENPLAYER" default="CTRL-SHIFT-F5">
-        IAAM.VW.Toggle(IAAM.CORE_GetName("player"))
+        IAAM.VW.Toggle(IAAM.CORE.GetName("player"))
     </Binding>
     <Binding category="IAmAMerchant" name="OPENMERCHANTTRACKER" default="CTRL-SHIFT-F6">
         IAAM_MT:SetShown(not IAAM_MT:IsShown())

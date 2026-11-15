@@ -6,28 +6,28 @@ local _, IAAM = ...
 --             Slash commands
 --
 
-SLASH_IAAMSlashCommand1 = "/iaam"
+IAAM.SLASH = {}
 
 --============================================================
 --
---             IAAMSlashCommand()
+--             IAAM.SLASH.HandleCommand()
 --
 --  Used to:
 --    * Add new items
 --    * clear the items for sale list
 --    * enable or disable iaam
 --
-function SlashCmdList.IAAMSlashCommand(Message, EditBox)
+function IAAM.SLASH.HandleCommand(Message, EditBox)
     IAAM.DEBUG.Print(false, "Core: Slash command")
     --
     -- Store space seperated arguments in a table
     --
-    local Table = IAAM.CORE_GetData(Message)
+    local Table = IAAM.CORE.GetData(Message)
     --
     -- Check if table is empty
     --
-    if IAAM.CORE_GetNumItems(Table) == 0 then
-        IAAM.CORE_PrintCommands()
+    if IAAM.CORE.GetNumItems(Table) == 0 then
+        IAAM.CORE.PrintCommands()
         return
     end
     --
@@ -37,9 +37,9 @@ function SlashCmdList.IAAMSlashCommand(Message, EditBox)
         --
         -- Check argument count for add command
         --
-        if IAAM.CORE_GetNumItems(Table) < 3 then
+        if IAAM.CORE.GetNumItems(Table) < 3 then
             print("IAmAMerchant: Wrong command!")
-            IAAM.CORE_PrintCommands()
+            IAAM.CORE.PrintCommands()
             return
         end
         --
@@ -48,7 +48,7 @@ function SlashCmdList.IAAMSlashCommand(Message, EditBox)
         local ItemID = Table.Link and GetItemInfoInstant(Table.Link)
         if ItemID == nil then
             print("IAmAMerchant: Couldn't find item!")
-            IAAM.CORE_PrintCommands()
+            IAAM.CORE.PrintCommands()
             return
         end
         --
@@ -56,13 +56,13 @@ function SlashCmdList.IAAMSlashCommand(Message, EditBox)
         --
         if tonumber(Table[2]) == nil or tonumber(Table[3]) == nil then
             print("IAmAMerchant: Wrong parameters!")
-            IAAM.CORE_PrintCommands()
+            IAAM.CORE.PrintCommands()
             return
         end
         --
         -- Add item to list characters for sale list
         --
-        IAAM.CORE_AddItem(IAAM_Character.ItemsForSale, Table.Link, Table[2], Table[3], C_Item.GetItemCount(Table.Link, true, true))
+        IAAM.CORE.AddItem(IAAM_Character.ItemsForSale, Table.Link, Table[2], Table[3], C_Item.GetItemCount(Table.Link, true, true))
         --
         -- If own merchant window is open, add it to targets for sale list and update the window
         -- so that the added item will be displayed instantly
@@ -87,6 +87,13 @@ function SlashCmdList.IAAMSlashCommand(Message, EditBox)
         end
     else
         print("IAmAMerchant: Wrong command!")
-        IAAM.CORE_PrintCommands()
+        IAAM.CORE.PrintCommands()
     end
 end
+
+--
+-- Register /iaam. The game links SLASH_<KEY>1 to SlashCmdList.<KEY>,
+-- so both must stay global.
+--
+SLASH_IAMAMERCHANT1      = "/iaam"
+SlashCmdList.IAMAMERCHANT = IAAM.SLASH.HandleCommand

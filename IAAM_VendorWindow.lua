@@ -29,7 +29,7 @@ IAAM.VW.AddItemPopup.Link = nil
 --
 function IAAM.VW.GetItemsForSaleTable()
     local Table
-    if IAAM_VW.FontStringTitle:GetText() == IAAM.CORE_GetName("player") then
+    if IAAM_VW.FontStringTitle:GetText() == IAAM.CORE.GetName("player") then
         Table = IAAM_Character.ItemsForSale
     else
         Table = IAAM.Merchant.ItemsForSale
@@ -44,7 +44,7 @@ end
 --  An empty list still has one (empty) page.
 --
 function IAAM.VW.GetNumPages()
-    local NumItems = IAAM.CORE_GetNumItems(IAAM.VW.GetItemsForSaleTable())
+    local NumItems = IAAM.CORE.GetNumItems(IAAM.VW.GetItemsForSaleTable())
     return math.max(1, math.ceil(NumItems / IAAM.VW.ITEMS_PER_PAGE))
 end
 
@@ -58,11 +58,11 @@ end
 
 --============================================================
 --
---             IAAM.VW.NextPageButton:OnClick()
+--             IAAM.VW.NextPageButton.OnClick()
 --
-function IAAM.VW.NextPageButton:OnClick()
+function IAAM.VW.NextPageButton.OnClick(self)
     IAAM.DEBUG.Print(false, "IAAM_VW.NextPageButton.OnClick()")
-    if IAAM_VW.Page < (IAAM.CORE_GetNumItems(IAAM.VW.GetItemsForSaleTable()) / IAAM.VW.ITEMS_PER_PAGE) then
+    if IAAM_VW.Page < (IAAM.CORE.GetNumItems(IAAM.VW.GetItemsForSaleTable()) / IAAM.VW.ITEMS_PER_PAGE) then
         IAAM_VW.Page = IAAM_VW.Page + 1
         IAAM_VW.FontStringPage:SetText(IAAM.VW.GetPageString())
         IAAM.VW.Update()
@@ -71,9 +71,9 @@ end
 
 --============================================================
 --
---             IAAM.VW.PrevPageButton:OnClick()
+--             IAAM.VW.PrevPageButton.OnClick()
 --
-function IAAM.VW.PrevPageButton:OnClick()
+function IAAM.VW.PrevPageButton.OnClick(self)
     IAAM.DEBUG.Print(false, "IAAM_VW.PrevPageButton.OnClick()")
     if IAAM_VW.Page > 1 then
         IAAM_VW.Page = IAAM_VW.Page - 1
@@ -89,7 +89,7 @@ end
 function IAAM.VW.ItemButton.OnClick(self, button, down)
     IAAM.DEBUG.Print(false, "IAAM.VW.ItemButton.OnClick()")
     if button == "RightButton" then
-        if IAAM_VW.Name == IAAM.CORE_GetName("player") then
+        if IAAM_VW.Name == IAAM.CORE.GetName("player") then
             --
             -- Remove item from your list
             --
@@ -111,7 +111,7 @@ function IAAM.VW.AddItemPopup.OnAccept(self)
     if StackPrice == nil then
         StackPrice = 0
     end
-IAAM.CORE_AddItem(IAAM_Character.ItemsForSale, IAAM.VW.AddItemPopup.Link, StackSize, StackPrice, C_Item.GetItemCount(IAAM.VW.AddItemPopup.Link, true, true))
+IAAM.CORE.AddItem(IAAM_Character.ItemsForSale, IAAM.VW.AddItemPopup.Link, StackSize, StackPrice, C_Item.GetItemCount(IAAM.VW.AddItemPopup.Link, true, true))
     IAAM.VW.Update()
 end
 
@@ -161,7 +161,7 @@ end
 function IAAM.VW.OnReceiveDrag(self)
     local Type, ItemID, ItemLink = GetCursorInfo()
     ClearCursor()
-    if IAAM.CORE_GetName("player") == IAAM_VW.FontStringTitle:GetText() then
+    if IAAM.CORE.GetName("player") == IAAM_VW.FontStringTitle:GetText() then
         if Type == "item" then
             IAAM.VW.AddItemPopup.Link = ItemLink
             local ItemName, _, ItemQuality = C_Item.GetItemInfo(ItemLink)
@@ -254,7 +254,7 @@ function IAAM.VW.OnShow(self)
         self:Hide()
     else
         IAAM_VW.FontStringTitle:SetText(Name)
-        if Name == IAAM.CORE_GetName("player") then
+        if Name == IAAM.CORE.GetName("player") then
             SetPortraitTexture(IAAM_VWPortrait, "player")
         else
             SetPortraitTexture(IAAM_VWPortrait, Name)
@@ -318,10 +318,10 @@ function IAAM.VW.Open(Name)
         IAAM_VW:Hide()
     end
     -- If name valid, open new merchant window, no matter if it's the same player
-    if IAAM.CORE_IsValidName(Name) then
+    if IAAM.CORE.IsValidName(Name) then
         IAAM.Merchant.ItemsForSale = {}
         IAAM_VW.Name = Name
-        IAAM.COM_SendRequestItems(Name)
+        IAAM.COM.SendRequestItems(Name)
     end
 end
 
@@ -331,11 +331,11 @@ end
 --
 function IAAM.VW.Toggle(Name)
     IAAM.DEBUG.Print(false, "IAAM.VW.Toggle()")
-    if IAAM_VW:IsShown() and IAAM_VW.FontStringTitle:GetText() == IAAM.CORE_GetName("player") then
+    if IAAM_VW:IsShown() and IAAM_VW.FontStringTitle:GetText() == IAAM.CORE.GetName("player") then
         IAAM_VW:Hide()
     else
         IAAM_VW:Hide()
-        IAAM.CORE_UpdateList()
+        IAAM.CORE.UpdateList()
         IAAM_VW.Name = Name
         IAAM_VW:Show()
     end
@@ -349,7 +349,7 @@ function IAAM.VW.Update()
     local ItemsForSale = IAAM.VW.GetItemsForSaleTable()
     IAAM.DEBUG.Print(false, "IAAM.VW.Update()")
 
-    local NumItems = IAAM.CORE_GetNumItems(ItemsForSale)
+    local NumItems = IAAM.CORE.GetNumItems(ItemsForSale)
     --
     -- Stay within the existing pages, e.g. after the last item of the
     -- last page was removed.
@@ -362,12 +362,12 @@ function IAAM.VW.Update()
     for i = 1, IAAM.VW.ITEMS_PER_PAGE do
         local Index = (((IAAM_VW.Page - 1) * IAAM.VW.ITEMS_PER_PAGE) + i)
         if Index <= NumItems then
-            local Item            = IAAM.CORE_GetItemAt(ItemsForSale, Index)
+            local Item            = IAAM.CORE.GetItemAt(ItemsForSale, Index)
             local ItemFrame       = IAAM_VW["FrameItem"..i]
             local ItemFrameButton = IAAM_VW["FrameItem"..i].ItemButton
             local ItemFrameMoney  = _G["IAAM_VWFrameItem"..i.."MoneyFrame"] -- We need to access a global name, since Blizzard isn't specifying parentKey as they did for ItemButton and other.
             local ItemFrameName   = IAAM_VW["FrameItem"..i].Name
-            IAAM.CORE_QueryItemInfo(Item)
+            IAAM.CORE.QueryItemInfo(Item)
             ItemFrameName:SetText(Item.Name)
             SetItemButtonCount(ItemFrameButton, Item.StackSize)
             SetItemButtonStock(ItemFrameButton, Item.Quantity)

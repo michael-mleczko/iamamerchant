@@ -26,23 +26,23 @@ BINDING_NAME_OPENMERCHANTTRACKER = "Open merchant tracker"
 
 --============================================================
 --
---             IAAM.CORE_AddItem()
+--             IAAM.CORE.AddItem()
 --
-function IAAM.CORE_AddItem(Table, Link, StackSize, Price, Quantity)
-    IAAM.DEBUG.Print(false, "IAAM.CORE_AddItem(", Table, ", "..Link..", "..StackSize..", "..Price..", "..Quantity..")")
+function IAAM.CORE.AddItem(Table, Link, StackSize, Price, Quantity)
+    IAAM.DEBUG.Print(false, "IAAM.CORE.AddItem(", Table, ", "..Link..", "..StackSize..", "..Price..", "..Quantity..")")
     Table[""..Link]           = {}
     Table[""..Link].Link      = Link
     Table[""..Link].StackSize = StackSize
     Table[""..Link].Price     = Price
     Table[""..Link].Quantity  = Quantity
-    IAAM.CORE_QueryItemInfo(Table[""..Link])
+    IAAM.CORE.QueryItemInfo(Table[""..Link])
 end
 
 --============================================================
 --
---             IAAM.CORE_AddItem()
+--             IAAM.CORE.UpdateList()
 --
-function IAAM.CORE_UpdateList()
+function IAAM.CORE.UpdateList()
     for k, v in pairs(IAAM_Character.ItemsForSale) do
         v.Quantity = C_Item.GetItemCount(v.Link, true, true)
     end
@@ -50,33 +50,33 @@ end
 
 --=============================================================
 --
---             IAAM.CORE_IsValidUnitID()
+--             IAAM.CORE.IsValidUnitID()
 --
-function IAAM.CORE_IsValidUnitID(UnitID)
+function IAAM.CORE.IsValidUnitID(UnitID)
     return UnitIsPlayer(UnitID) and UnitExists(UnitID) and UnitIsFriend("player", UnitID)
 end
 
 --=============================================================
 --
---             IAAM.CORE_IsValidName()
+--             IAAM.CORE.IsValidName()
 --
-function IAAM.CORE_IsValidName(UnitName)
+function IAAM.CORE.IsValidName(UnitName)
     return UnitName ~= _G["UNKNOWN"] and UnitName ~= _G["UNKNOWNOBJECT"]
 end
 
 --============================================================
 --
---             IAAM.CORE_RemoveRealmFromName()
+--             IAAM.CORE.RemoveRealmFromName()
 --
-function IAAM.CORE_RemoveRealmFromName(UnitName)
+function IAAM.CORE.RemoveRealmFromName(UnitName)
     return string.sub(UnitName, string.find(UnitName, "[^-]+"))
 end
 
 --============================================================
 --
---             IAAM.CORE_GetName()
+--             IAAM.CORE.GetName()
 --
-function IAAM.CORE_GetName(UnitID)
+function IAAM.CORE.GetName(UnitID)
     if IAAM.TocVersion > 80000 then
         local Name = GetUnitName(UnitID, true)
         if C_PlayerInfo.UnitIsSameServer(PlayerLocation:CreateFromUnit(UnitID)) then
@@ -91,9 +91,9 @@ end
 
 --============================================================
 --
---             IAAM.CORE_GetNumItems()
+--             IAAM.CORE.GetNumItems()
 --
-function IAAM.CORE_GetNumItems(Table)
+function IAAM.CORE.GetNumItems(Table)
     local Num = 0
     for _, _ in pairs(Table) do
         Num = Num + 1
@@ -103,13 +103,13 @@ end
 
 --============================================================
 --
---             IAAM.CORE_GetData()
+--             IAAM.CORE.GetData()
 --
-function IAAM.CORE_GetData(Data)
-    IAAM.DEBUG.Print(false, "IAAM.CORE_GetData()")
+function IAAM.CORE.GetData(Data)
+    IAAM.DEBUG.Print(false, "IAAM.CORE.GetData()")
     local Index = 1
     local Table = {}
-    local Link, Data = IAAM.LINK_Get(Data)
+    local Link, Data = IAAM.LINK.Get(Data)
     if Link ~= nil then
         Table.Link = Link
     end
@@ -129,9 +129,9 @@ end
 
 --============================================================
 --
---             IAAM.CORE_QueryItemInfo()
+--             IAAM.CORE.QueryItemInfo()
 --
-function IAAM.CORE_QueryItemInfo(Item)
+function IAAM.CORE.QueryItemInfo(Item)
     --
     -- Query only if information is missing
     --
@@ -145,9 +145,9 @@ end
 
 --============================================================
 --
---             IAAM.CORE_GetItemAt()
+--             IAAM.CORE.GetItemAt()
 --
-function IAAM.CORE_GetItemAt(Table, Index)
+function IAAM.CORE.GetItemAt(Table, Index)
     --
     -- Iterate throgh all elements in the table and return
     -- the element at the position of Index. Need to used
@@ -164,9 +164,9 @@ end
 
 --============================================================
 --
---             IAAM.CORE_PrintCommands()
+--             IAAM.CORE.PrintCommands()
 --
-function IAAM.CORE_PrintCommands(index)
+function IAAM.CORE.PrintCommands(index)
     print(" ")
     print("IAmAMerchant (v"..IAAM.VERSION..")")
     print(" ")
@@ -178,9 +178,9 @@ end
 
 --============================================================
 --
---             IAAM.CORE_CopyTable()
+--             IAAM.CORE.CopyTable()
 --
-function IAAM.CORE_CopyTable(t)
+function IAAM.CORE.CopyTable(t)
   local t2 = {}
   for k,v in pairs(t) do
     t2[k] = v

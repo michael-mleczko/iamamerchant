@@ -71,31 +71,31 @@ end
 
 --============================================================
 --
---             IAAM.COM_SendRequestItems()
+--             IAAM.COM.SendRequestItems()
 --
-function IAAM.COM_SendRequestItems(UnitName)
-    IAAM.DEBUG.Print(false, "IAAM.COM_SendRequestItems("..UnitName..")")
+function IAAM.COM.SendRequestItems(UnitName)
+    IAAM.DEBUG.Print(false, "IAAM.COM.SendRequestItems("..UnitName..")")
     if ChatThrottleLib:SendAddonMessage("NORMAL", IAAM.COM.Prefix, IAAM.COM.COMMAND.RequestItems, "WHISPER", UnitName) == false then
-        IAAM.DEBUG.Print(false, "IAAM.COM_SendRequestItems: Could not send addon message.")
+        IAAM.DEBUG.Print(false, "IAAM.COM.SendRequestItems: Could not send addon message.")
     end
 end
 
 --============================================================
 --
---             IAAM.COM_SendItem()
+--             IAAM.COM.SendItem()
 --
-function IAAM.COM_SendItem(UnitName, Link, StackSize, Price)
-    IAAM.DEBUG.Print(false, "IAAM.COM_SendItem("..UnitName..", "..Link..", "..StackSize..", "..Price..")")
+function IAAM.COM.SendItem(UnitName, Link, StackSize, Price)
+    IAAM.DEBUG.Print(false, "IAAM.COM.SendItem("..UnitName..", "..Link..", "..StackSize..", "..Price..")")
     local DataString = IAAM.COM.COMMAND.RequestItemsResponse.." "..Link.." "..StackSize.." "..Price.." "..C_Item.GetItemCount(Link, true, true)
     ChatThrottleLib:SendAddonMessage("NORMAL", IAAM.COM.Prefix, DataString, "WHISPER", UnitName)
 end
 
 --============================================================
 --
---             IAAM.COM_QueryBroadcastWorld()
+--             IAAM.COM.QueryBroadcastWorld()
 --
-function IAAM.COM_QueryBroadcastWorld()
-    IAAM.DEBUG.Print(false, "IAAM.COM_QueryBroadcastWorld()")
+function IAAM.COM.QueryBroadcastWorld()
+    IAAM.DEBUG.Print(false, "IAAM.COM.QueryBroadcastWorld()")
     local Id = GetChannelName(IAAM.COM.ChannelName)
     if Id == 0 then
         IAAM.DEBUG.Print(false, "Cannot send addon data. Communication channel not found. Id: ", Id)
@@ -106,18 +106,18 @@ end
 
 --============================================================
 --
---             IAAM.COM_QueryBroadcastGuild()
+--             IAAM.COM.QueryBroadcastGuild()
 --
-function IAAM.COM_QueryBroadcastGuild()
-    IAAM.DEBUG.Print(false, "IAAM.COM_QueryBroadcastGuild()")
+function IAAM.COM.QueryBroadcastGuild()
+    IAAM.DEBUG.Print(false, "IAAM.COM.QueryBroadcastGuild()")
     ChatThrottleLib:SendAddonMessage("NORMAL", IAAM.COM.Prefix, IAAM.COM.COMMAND.QueryBroadcast, "GUILD")
 end
 
 --============================================================
 --
---             IAAM.COM_QueryBroadcastResponse()
+--             IAAM.COM.QueryBroadcastResponse()
 --
-function IAAM.COM_QueryBroadcastResponse(Target)
-    IAAM.DEBUG.Print(false, "IAAM.COM_QueryBroadcastResponse()")
-    ChatThrottleLib:SendAddonMessage("NORMAL", IAAM.COM.Prefix, IAAM.COM.COMMAND.QueryBroadcastResponse.." "..IAAM.CORE_GetNumItems(IAAM_Character.ItemsForSale), "WHISPER", Target)
+function IAAM.COM.QueryBroadcastResponse(Target)
+    IAAM.DEBUG.Print(false, "IAAM.COM.QueryBroadcastResponse()")
+    ChatThrottleLib:SendAddonMessage("NORMAL", IAAM.COM.Prefix, IAAM.COM.COMMAND.QueryBroadcastResponse.." "..IAAM.CORE.GetNumItems(IAAM_Character.ItemsForSale), "WHISPER", Target)
 end

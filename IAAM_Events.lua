@@ -11,9 +11,9 @@ IAAM.EVENT.Handlers = {}
 
 --============================================================
 --
---             IAAM.EVENT.EventHandler()
+--             IAAM.EVENT.OnEvent()
 --
-function IAAM.EVENT.EventHandler(self, Event, ...)
+function IAAM.EVENT.OnEvent(self, Event, ...)
     IAAM.DEBUG.Print(false, "[EVENT] "..Event)
     IAAM.EVENT.Handlers[Event](...)
 end
@@ -58,7 +58,7 @@ function IAAM.EVENT.Handlers.CHAT_MSG_CHANNEL(...)
     if ChannelName == IAAM.COM.ChannelName then
         if Data == IAAM.COM.COMMAND.QueryBroadcast then
             IAAM.DEBUG.Print(false, "CHAT_MSG_CHANNEL: IAAM.COM.COMMAND.QueryBroadcast")
-            IAAM.COM_QueryBroadcastResponse(Sender)
+            IAAM.COM.QueryBroadcastResponse(Sender)
         end
     end
 end
@@ -82,7 +82,7 @@ function IAAM.EVENT.Handlers.CHAT_MSG_ADDON(...)
     if Channel == "YELL" or Channel == "GUILD" or Channel == "CHANNEL" then
         if Data == IAAM.COM.COMMAND.QueryBroadcast then
             IAAM.DEBUG.Print(false, "CHAT_MSG_ADDON: IAAM.COM.COMMAND.QueryBroadcast")
-            IAAM.COM_QueryBroadcastResponse(Sender)
+            IAAM.COM.QueryBroadcastResponse(Sender)
         end
     end
     --
@@ -92,11 +92,11 @@ function IAAM.EVENT.Handlers.CHAT_MSG_ADDON(...)
         --
         -- Extract link and remove link string from data string
         --
-        local Link, Data = IAAM.LINK_Get(Data)
+        local Link, Data = IAAM.LINK.Get(Data)
         --
         -- Create a table with all arguments
         --
-        local Table = IAAM.CORE_GetData(Data)
+        local Table = IAAM.CORE.GetData(Data)
         --
         -- Table[1] contains the communication command
         --
@@ -108,7 +108,7 @@ function IAAM.EVENT.Handlers.CHAT_MSG_ADDON(...)
             --
             if Sender == IAAM_VW.Name then
                 --                                            Link  StackSize Price     Quantity
-                IAAM.CORE_AddItem(IAAM.Merchant.ItemsForSale, Link, Table[2], Table[3], Table[4])
+                IAAM.CORE.AddItem(IAAM.Merchant.ItemsForSale, Link, Table[2], Table[3], Table[4])
                 if IAAM_VW:IsShown() == false then
                     IAAM_VW:Show()
                 end
@@ -121,7 +121,7 @@ function IAAM.EVENT.Handlers.CHAT_MSG_ADDON(...)
             -- Send your merchant information.
             --
             for Key, ItemForSale in pairs(IAAM_Character.ItemsForSale) do
-                IAAM.COM_SendItem(Sender, ItemForSale.Link, ItemForSale.StackSize, ItemForSale.Price)
+                IAAM.COM.SendItem(Sender, ItemForSale.Link, ItemForSale.StackSize, ItemForSale.Price)
             end
         elseif Command == IAAM.COM.COMMAND.QueryBroadcastResponse then
             IAAM.DEBUG.Print(false, "CHAT_MSG_ADDON: IAAM.COM.COMMAND.QueryBroadcastResponse")
@@ -189,7 +189,7 @@ end
 -- Initialize event handler
 --
 IAAM.EVENT.Frame = CreateFrame("Frame")
-IAAM.EVENT.Frame:SetScript("OnEvent", IAAM.EVENT.EventHandler)
+IAAM.EVENT.Frame:SetScript("OnEvent", IAAM.EVENT.OnEvent)
 for Key in pairs(IAAM.EVENT.Handlers) do
     --_G[self:GetName()][Key] = IAAM.EVENT.Handlers[Key]
     IAAM.EVENT.Frame:RegisterEvent(Key)
