@@ -318,11 +318,36 @@ function IAAM.VW.Open(Name)
         IAAM_VW:Hide()
     end
     -- If name valid, open new merchant window, no matter if it's the same player
-    if IAAM.CORE.IsValidName(Name) then
-        IAAM.Merchant.ItemsForSale = {}
-        IAAM_VW.Name = Name
-        IAAM.COM.SendRequestItems(Name)
+    if not IAAM.CORE.IsValidName(Name) then
+        return
     end
+    --
+    -- Request the item list. The window opens when the whole list has
+    -- arrived. Only the most recent request opens it.
+    --
+    local RequestID
+    RequestID = IAAM.NET.RequestList(Name, function(Items)
+        if RequestID == nil or IAAM.VW.PendingRequest ~= RequestID then
+            return
+        end
+        IAAM.VW.PendingRequest = nil
+        if Items == nil then
+            print("IAmAMerchant: "..Name.." didn't answer. On WoW Forever, addon messages between players on different internal realms usually don't arrive.")
+            return
+        end
+        IAAM.Merchant.ItemsForSale = {}
+        for _, Item in ipairs(Items) do
+            IAAM.CORE.AddItem(IAAM.Merchant.ItemsForSale, Item.Link, Item.StackSize, Item.Price, Item.Quantity)
+        end
+        IAAM_VW.Name = Name
+        IAAM_VW.Page = 1
+        IAAM_VW:Show()
+        IAAM.VW.Update()
+    end)
+    if RequestID == nil then
+        print("IAmAMerchant: Can't send addon messages right now.")
+    end
+    IAAM.VW.PendingRequest = RequestID
 end
 
 --============================================================

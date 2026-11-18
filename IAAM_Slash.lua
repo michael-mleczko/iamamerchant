@@ -92,6 +92,9 @@ function IAAM.SLASH.HandleCommand(Message, EditBox)
             print("IAmAMerchant now only shows merchants that have items for sale.")
             IAAM_Character.ShowAll = false
         end
+        if IAAM_MT:IsShown() then
+            IAAM_MT:UpdateList()
+        end
     elseif Table[1] == "clear" then
         IAAM_Character.ItemsForSale = {}
         if IAAM_VW:IsShown() then
