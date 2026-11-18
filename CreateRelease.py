@@ -21,6 +21,7 @@ with zipfile.ZipFile(f"IAmAMerchant_v{version}.zip", "w") as archive:
     archive.write("Bindings.xml", "IAmAMerchant/Bindings.xml")
     archive.write("ChatThrottleLib.lua", "IAmAMerchant/ChatThrottleLib.lua")
     archive.write("IAAM_Com.lua", "IAmAMerchant/IAAM_Com.lua")
+    archive.write("IAAM_Net.lua", "IAmAMerchant/IAAM_Net.lua")
     archive.write("IAAM_Core.lua", "IAmAMerchant/IAAM_Core.lua")
     archive.write("IAAM_Debug.lua", "IAmAMerchant/IAAM_Debug.lua")
     archive.write("IAAM_Diag.lua", "IAmAMerchant/IAAM_Diag.lua")

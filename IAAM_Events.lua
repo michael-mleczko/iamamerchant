@@ -173,6 +173,7 @@ function IAAM.EVENT.Handlers.VARIABLES_LOADED(event, ...)
         IAAM_Account = {}
     end
     IAAM.COM.Init()
+    IAAM.NET.Init()
     --
     -- Make frames close on ESC
     --
