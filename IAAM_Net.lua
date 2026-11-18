@@ -36,6 +36,7 @@ IAAM.NET.PROTOCOL         = 3
 IAAM.NET.SEPARATOR        = ";"
 IAAM.NET.CHANNEL_NAME     = "IAmAMerchantV3"
 IAAM.NET.CHANNEL_PASSWORD = "iaam3"            -- Only keeps players from joining by accident
+IAAM.NET.OLD_CHANNEL_NAME = "IAmAMerchant"     -- Channel of version 2, left on login
 IAAM.NET.CHUNK_SIZE       = 200                -- Bytes of list data per message (limit is 255 in total)
 IAAM.NET.PING_TIMEOUT     = 10                 -- Seconds to wait for HELLOACK
 IAAM.NET.PING_INTERVAL    = 120                -- Seconds before asking a player without answer again
@@ -125,7 +126,7 @@ end
 --
 
 --
--- Joins the hidden channel. Waits
+-- Joins the hidden channel and leaves the channel of version 2. Waits
 -- until the game's own channels are joined, so that this channel
 -- doesn't take their numbers (e.g. /1 for General).
 --
@@ -133,6 +134,9 @@ function IAAM.NET.JoinChannel()
     if GetNumDisplayChannels() == 0 then
         C_Timer.After(3, IAAM.NET.JoinChannel)
         return
+    end
+    if GetChannelName(IAAM.NET.OLD_CHANNEL_NAME) ~= 0 then
+        LeaveChannelByName(IAAM.NET.OLD_CHANNEL_NAME)
     end
     if GetChannelName(IAAM.NET.CHANNEL_NAME) == 0 then
         JoinPermanentChannel(IAAM.NET.CHANNEL_NAME, IAAM.NET.CHANNEL_PASSWORD)
@@ -485,11 +489,12 @@ function IAAM.NET.FilterPlayerNotFound(_, _, Message)
 end
 
 --
--- Hides join/leave notices of the hidden channel
+-- Hides join/leave notices of the hidden channel and of the channel of
+-- version 2
 --
 function IAAM.NET.FilterChannelNotice(_, _, ...)
     local ChannelBaseName = select(9, ...)
-    return ChannelBaseName == IAAM.NET.CHANNEL_NAME
+    return ChannelBaseName == IAAM.NET.CHANNEL_NAME or ChannelBaseName == IAAM.NET.OLD_CHANNEL_NAME
 end
 
 function IAAM.NET.Init()

@@ -575,7 +575,7 @@ end
 -- Reads the member list of the diagnosis channel and checks whether it
 -- contains this character (solo) or the partner. If the diagnosis
 -- channel doesn't appear in the channel list, the addon's own channel
--- (IAAM.COM.ChannelName) is used instead, if this character is in it.
+-- (IAAM.NET.CHANNEL_NAME) is used instead, if this character is in it.
 --
 function IAAM.DIAG.Steps.Roster(Next, IsPartner)
     local DisplayIndex, Names
@@ -587,7 +587,7 @@ function IAAM.DIAG.Steps.Roster(Next, IsPartner)
         if DisplayIndex == nil then
             IAAM.DIAG.Add("INFO", "Channel %s is not in the channel list. Listed channels: %s",
                 ChannelName, table.concat(Names, ", "))
-            ChannelName = IAAM.COM and IAAM.COM.ChannelName
+            ChannelName = IAAM.NET and IAAM.NET.CHANNEL_NAME
             DisplayIndex = ChannelName and IAAM.DIAG.FindDisplayIndex(ChannelName)
             if DisplayIndex == nil then
                 IAAM.DIAG.Add("FAIL", "Channel member list: no usable channel in the channel list")

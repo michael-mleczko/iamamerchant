@@ -9,7 +9,6 @@
 ChatThrottleLib.lua
 IAAM_Debug.lua
 IAAM_Events.lua
-IAAM_Com.lua
 IAAM_Net.lua
 IAAM_Link.lua
 IAAM_Slash.lua
