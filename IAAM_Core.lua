@@ -66,27 +66,26 @@ end
 
 --============================================================
 --
---             IAAM.CORE.RemoveRealmFromName()
---
-function IAAM.CORE.RemoveRealmFromName(UnitName)
-    return string.sub(UnitName, string.find(UnitName, "[^-]+"))
-end
-
---============================================================
---
 --             IAAM.CORE.GetName()
 --
+--  Returns the name of a player unit as used for addon messages.
+--
+--  On WoW Forever, characters have a first name and a surname.
+--  UnitName returns the surname where the realm used to be, and
+--  addon messages arrive from "First Surname". The game provides the
+--  separator as CHARACTERNAME_SURNAME_SEPARATOR (a space on Forever).
+--
 function IAAM.CORE.GetName(UnitID)
-    if IAAM.TocVersion > 80000 then
-        local Name = GetUnitName(UnitID, true)
-        if C_PlayerInfo.UnitIsSameServer(PlayerLocation:CreateFromUnit(UnitID)) then
-            Name = Name.."-"..GetRealmName()
-        end
-        return Name
-    else
-        local Name = GetUnitName(UnitID, true)
+    local Name, Surname = UnitName(UnitID)
+    if Name == nil then
+        return nil
+    end
+    if Surname == nil or Surname == "" then
         return Name
     end
+    local Separators = Constants and Constants.CharacterNameSeparatorConsts
+    local Separator = type(Separators) == "table" and Separators.CHARACTERNAME_SURNAME_SEPARATOR or " "
+    return Name..Separator..Surname
 end
 
 --============================================================

@@ -152,10 +152,6 @@ end
 function IAAM.EVENT.Handlers.VARIABLES_LOADED(event, ...)
     IAAM.DEBUG.Print(false, "Core: Variables loaded")
     --
-    -- Get toc version for this build
-    --
-    IAAM.TocVersion = select(4, GetBuildInfo())
-    --
     -- Initialize variables if not yet done.
     --
     if type(IAAM.Merchant) ~= "table" then
