@@ -227,6 +227,23 @@ function IAAM.VW.OnLoad(self)
     IAAM_VW:SetScript("OnMouseDown", IAAM.VW.OnMouseDown)
     IAAM_VW:SetScript("OnMouseWheel", IAAM.VW.OnMouseWheel)
     IAAM_VW:SetScript("OnReceiveDrag", IAAM.VW.OnReceiveDrag)
+    --
+    -- Redraw when the game has loaded the data of an item, e.g. of items
+    -- received from another player. Several items usually arrive at
+    -- once, so the redraws are combined.
+    --
+    IAAM_VW:RegisterEvent("GET_ITEM_INFO_RECEIVED")
+    IAAM_VW:SetScript("OnEvent", function(self, Event)
+        if Event == "GET_ITEM_INFO_RECEIVED" and self:IsShown() and not self.UpdatePending then
+            self.UpdatePending = true
+            C_Timer.After(0.1, function()
+                self.UpdatePending = false
+                if self:IsShown() then
+                    IAAM.VW.Update()
+                end
+            end)
+        end
+    end)
     IAAM_VW.NextPageButton:SetScript("OnClick", IAAM.VW.NextPageButton.OnClick)
     IAAM_VW.PrevPageButton:SetScript("OnClick", IAAM.VW.PrevPageButton.OnClick)
 end
@@ -393,13 +410,13 @@ function IAAM.VW.Update()
             local ItemFrameMoney  = _G["IAAM_VWFrameItem"..i.."MoneyFrame"] -- We need to access a global name, since Blizzard isn't specifying parentKey as they did for ItemButton and other.
             local ItemFrameName   = IAAM_VW["FrameItem"..i].Name
             IAAM.CORE.QueryItemInfo(Item)
-            ItemFrameName:SetText(Item.Name)
+            ItemFrameName:SetText(Item.Name or IAAM.CORE.GetNameFromLink(Item.Link))
             SetItemButtonCount(ItemFrameButton, Item.StackSize)
             SetItemButtonStock(ItemFrameButton, Item.Quantity)
             SetItemButtonTexture(ItemFrameButton, Item.Texture)
             ItemFrameButton.price        = Item.Price
             ItemFrameButton.extendedCost = nil
-            ItemFrameButton.name         = Item.Name
+            ItemFrameButton.name         = Item.Name or IAAM.CORE.GetNameFromLink(Item.Link)
             ItemFrameButton.link         = Item.Link
             ItemFrameButton.ItemID       = Item.ID
             ItemFrameButton.texture      = Item.Texture

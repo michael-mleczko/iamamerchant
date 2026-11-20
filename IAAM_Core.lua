@@ -132,14 +132,32 @@ end
 --
 function IAAM.CORE.QueryItemInfo(Item)
     --
-    -- Query only if information is missing
+    -- Item ID and icon are always available right away
     --
-    if Item.Texture == nil or Item.ID == nil then
-        local Name, _, _, _, _, _, _, _, _, Texture = C_Item.GetItemInfo(Item.Link)
-        Item.Name    = Name
-        Item.Texture = Texture
-        Item.ID      = C_Item.GetItemInfoInstant(Item.Link)
+    if Item.ID == nil or Item.Texture == nil then
+        local ItemID, _, _, _, Icon = C_Item.GetItemInfoInstant(Item.Link)
+        Item.ID      = ItemID
+        Item.Texture = Icon
     end
+    --
+    -- The name needs the item data, which the game may still have to
+    -- load (e.g. for items received from other players). Until then,
+    -- the name is taken from the item link. GET_ITEM_INFO_RECEIVED
+    -- fires once the data has been loaded.
+    --
+    if Item.Name == nil then
+        Item.Name = C_Item.GetItemInfo(Item.Link)
+        if Item.Name == nil and Item.ID then
+            C_Item.RequestLoadItemDataByID(Item.ID)
+        end
+    end
+end
+
+--
+-- Returns the name in square brackets of an item link
+--
+function IAAM.CORE.GetNameFromLink(Link)
+    return string.match(Link or "", "%[(.-)%]")
 end
 
 --============================================================
