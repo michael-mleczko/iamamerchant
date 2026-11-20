@@ -25,11 +25,21 @@ IAAM.VW.AddItemPopup.Link = nil
 
 --============================================================
 --
+--             IAAM.VW.IsOwnShop()
+--
+--  True if the window shows the items of this character
+--
+function IAAM.VW.IsOwnShop()
+    return IAAM_VW.Name ~= nil and IAAM_VW.Name == IAAM.CORE.GetName("player")
+end
+
+--============================================================
+--
 --             IAAM.VW.GetItemsForSaleTable()
 --
 function IAAM.VW.GetItemsForSaleTable()
     local Table
-    if IAAM_VW.FontStringTitle:GetText() == IAAM.CORE.GetName("player") then
+    if IAAM.VW.IsOwnShop() then
         Table = IAAM_Character.ItemsForSale
     else
         Table = IAAM.Merchant.ItemsForSale
@@ -161,7 +171,7 @@ end
 function IAAM.VW.OnReceiveDrag(self)
     local Type, ItemID, ItemLink = GetCursorInfo()
     ClearCursor()
-    if IAAM.CORE.GetName("player") == IAAM_VW.FontStringTitle:GetText() then
+    if IAAM.VW.IsOwnShop() then
         if Type == "item" then
             IAAM.VW.AddItemPopup.Link = ItemLink
             local ItemName, _, ItemQuality = C_Item.GetItemInfo(ItemLink)
@@ -270,7 +280,7 @@ function IAAM.VW.OnShow(self)
     if Name == nil then
         self:Hide()
     else
-        IAAM_VW.FontStringTitle:SetText(Name)
+        IAAM_VW:SetTitle(Name)
         if Name == IAAM.CORE.GetName("player") then
             SetPortraitTexture(IAAM_VWPortrait, "player")
         else
@@ -373,7 +383,7 @@ end
 --
 function IAAM.VW.Toggle(Name)
     IAAM.DEBUG.Print(false, "IAAM.VW.Toggle()")
-    if IAAM_VW:IsShown() and IAAM_VW.FontStringTitle:GetText() == IAAM.CORE.GetName("player") then
+    if IAAM_VW:IsShown() and IAAM.VW.IsOwnShop() then
         IAAM_VW:Hide()
     else
         IAAM_VW:Hide()
