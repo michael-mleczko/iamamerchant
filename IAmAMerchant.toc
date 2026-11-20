@@ -1,5 +1,5 @@
-## Interface: 11505
-## Title: IAmAMerchant Classic (v2.3.0)
+## Interface: 16001
+## Title: IAmAMerchant (v2.3.0)
 ## Notes: Use "/iaam help" for further information.
 ## Version: 020300
 ## SavedVariables: IAAM_Account
@@ -9,9 +9,10 @@
 ChatThrottleLib.lua
 IAAM_Debug.lua
 IAAM_Events.lua
-IAAM_Com.lua
+IAAM_Net.lua
 IAAM_Link.lua
 IAAM_Slash.lua
 IAAM_Core.lua
+IAAM_Diag.lua
 IAAM_VendorWindow.xml
 IAAM_MerchantTracker.xml

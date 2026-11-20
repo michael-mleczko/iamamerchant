@@ -15,11 +15,11 @@ if IAAM.DEBUG.Enabled == true then
 
     SLASH_FRAMESTK1       = "/fs"
     SlashCmdList.FRAMESTK = function()
-        LoadAddOn("Blizzard_DebugTools")
+        C_AddOns.LoadAddOn("Blizzard_DebugTools")
         FrameStackTooltip_Toggle()
     end
 
-    for i = 1, NUM_CHAT_WINDOWS do
+    for i = 1, Constants.ChatFrameConstants.MaxChatWindows do
         _G["ChatFrame"..i.."EditBox"]:SetAltArrowKeyMode(false)
     end
 end
