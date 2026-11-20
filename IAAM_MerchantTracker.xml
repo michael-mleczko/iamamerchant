@@ -2,27 +2,52 @@
 
 	<Script file="IAAM_MerchantTracker.lua"/>
 
-    <!-- Merchant Tracker -->
-    <!-- Scroll List Button Template: Buttons used in the scroll list. -->
-	<Button name="IAAM_MT_ScrollListButtonTemplate" inherits="BackdropTemplate" mixin="IAAM_MT_ScrollListButtonMixin" registerForClicks="AnyUp" hidden="false" virtual="true">
+	<!--
+		Merchant Tracker
+
+		Compact list of other IAmAMerchant users, in the style of the modern
+		group loot history window (DefaultPanelFlatTemplate):
+
+		  [ Search names            ] [Refresh]
+		  | Bob Builder        30 items
+		  | Anna Smith          3 items
+		  Not reachable
+		  | Cain Dogfang      no connection
+		  2 merchants, 1 not reachable
+	-->
+
+	<!-- One row of the list: a merchant, another addon user, or a section header -->
+	<Button name="IAAM_MT_RowTemplate" mixin="IAAM_MT_RowMixin" registerForClicks="LeftButtonUp" virtual="true">
 		<Size y="20"/>
 		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="Stripe" atlas="auctionhouse-rowstripe-1" setAllPoints="true"/>
+			</Layer>
+			<Layer level="ARTWORK">
+				<!-- Thin bar on the left: green for reachable merchants, grey for others -->
+				<Texture parentKey="StatusBar">
+					<Size x="3"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" y="-3"/>
+						<Anchor point="BOTTOMLEFT" y="3"/>
+					</Anchors>
+				</Texture>
+			</Layer>
 			<Layer level="OVERLAY">
 				<FontString parentKey="RightLabel" inherits="GameFontHighlightSmall" justifyH="RIGHT">
-					<Size y="20"/>
 					<Anchors>
-						<Anchor point="RIGHT" x="-5"/>
+						<Anchor point="RIGHT" x="-6"/>
 					</Anchors>
 				</FontString>
 				<FontString parentKey="LeftLabel" inherits="GameFontHighlightSmall" wordwrap="false" justifyH="LEFT">
-					<Size y="20"/>
 					<Anchors>
-						<Anchor point="LEFT" x="5"/>
-						<Anchor point="RIGHT" relativeKey="$parent.RightLabel" relativePoint="LEFT" x="-5"/>
+						<Anchor point="LEFT" x="10"/>
+						<Anchor point="RIGHT" relativeKey="$parent.RightLabel" relativePoint="LEFT" x="-6"/>
 					</Anchors>
 				</FontString>
 			</Layer>
 		</Layers>
+		<HighlightTexture parentKey="Highlight" atlas="auctionhouse-ui-row-highlight" alphaMode="ADD" setAllPoints="true"/>
 		<Scripts>
 			<OnClick method="OnClick"/>
 			<OnEnter method="OnEnter"/>
@@ -30,100 +55,110 @@
 		</Scripts>
 	</Button>
 
-    <!-- Menu Button Template: Buttons used below the title bar. -->
-	<Button name="IAAM_MT_MenuButtonTemplate" mixin="IAAM_MT_MenuButtonMixin" virtual="true">
-		<Size x="132" y="20"/>
+	<Frame name="IAAM_MT" mixin="IAAM_MT_Mixin" inherits="DefaultPanelFlatTemplate" parent="UIParent" toplevel="true" frameStrata="MEDIUM" movable="true" resizable="true" enableMouse="true" registerForDrag="LeftButton" clampedToScreen="true" hidden="true">
+		<Size x="250" y="300"/>
+		<Anchors>
+			<Anchor point="CENTER"/>
+		</Anchors>
+		<ResizeBounds>
+			<minResize x="250" y="160"/>
+			<maxResize x="250" y="700"/>
+		</ResizeBounds>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnShow method="OnShow"/>
+			<OnHide method="OnHide"/>
+			<OnDragStart method="OnDragStart"/>
+			<OnDragStop method="OnDragStop"/>
+		</Scripts>
 		<Layers>
-			<Layer level="BACKGROUND">
-				<Texture parentKey="NormalTexture" atlas="auctionhouse-nav-button" useAtlasSize="false">
-					<Size x="136" y="32"/>
-					<Anchors>
-						<Anchor point="TOPLEFT" x="-2" y="0"/>
-					</Anchors>
-				</Texture>
-			</Layer>
-			<Layer level="BORDER">
-				<Texture parentKey="HighlightTexture" atlas="auctionhouse-nav-button-highlight" hidden="true">
-					<Anchors>
-						<Anchor point="CENTER"/>
-					</Anchors>
-				</Texture>
-			</Layer>
 			<Layer level="OVERLAY">
-				<Texture parentKey="MouseoverOverlay" hidden="true" atlas="auctionhouse-nav-button" useAtlasSize="false" alphaMode="ADD"/>
-				<FontString parentKey="Label" inherits="GameFontHighlight">
-					<Size x="180" y="16"/>
+				<!-- Summary below the list -->
+				<FontString parentKey="Status" inherits="GameFontDisableSmall" justifyH="LEFT" wordwrap="false">
 					<Anchors>
-						<Anchor point="CENTER"/>
+						<Anchor point="BOTTOMLEFT" x="14" y="10"/>
+						<Anchor point="BOTTOMRIGHT" x="-14" y="10"/>
 					</Anchors>
 				</FontString>
 			</Layer>
 		</Layers>
-		<Scripts>
-			<OnEnter method="OnEnter"/>
-			<OnLeave method="OnLeave"/>
-			<OnMouseUp method="OnMouseUp"/>
-			<OnMouseDown method="OnMouseDown"/>
-		</Scripts>
-	</Button>
+		<Frames>
+			<Button parentKey="ClosePanelButton" inherits="UIPanelCloseButtonDefaultAnchors"/>
 
-    <Frame name="IAAM_MT" mixin="IAAM_MT_Mixin" inherits="ButtonFrameTemplate" parent="UIParent" toplevel="true" movable="true" resizable="true" enableMouse="true" clampedToScreen="true" hidden="true">
-		<Size x="480" y="250"/>
-		<Anchors>
-			<Anchor point="CENTER"/>
-		</Anchors>
-        <ResizeBounds>
-            <minResize x="480" y="250"/>
-        </ResizeBounds>
-        <Frames>
-            <!-- Title Bar -->
-			<Frame parentKey="TitleBar" inherits="PanelDragBarTemplate">
-				<Size y="32"/>
+			<EditBox parentKey="SearchBox" inherits="SearchBoxTemplate">
+				<Size y="20"/>
 				<Anchors>
-					<Anchor point="TOPLEFT"/>
-					<Anchor point="TOPRIGHT"/>
+					<Anchor point="TOPLEFT" x="18" y="-30"/>
+					<Anchor point="TOPRIGHT" x="-40" y="-30"/>
+				</Anchors>
+			</EditBox>
+
+			<!-- Same refresh button as in the group finder -->
+			<Button parentKey="RefreshButton">
+				<Size x="28" y="28"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeKey="$parent.SearchBox" relativePoint="RIGHT" x="2" y="0"/>
 				</Anchors>
 				<Layers>
+					<Layer level="ARTWORK" textureSubLevel="5">
+						<Texture parentKey="Icon" file="Interface\Buttons\UI-RefreshButton">
+							<Size x="14" y="14"/>
+							<Anchors>
+								<Anchor point="CENTER" x="-1" y="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
 				</Layers>
-                <Frames>
-                    <Button parentKey="RefreshButton" mixin="IAAM_MT_RefreshButtonMixin" inherits="IAAM_MT_MenuButtonTemplate">
-                        <Anchors>
-                            <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" x="10"/>
-                        </Anchors>
-                        <Scripts>
-                            <OnClick method="OnClick"/>
-                        </Scripts>
-                    </Button>
-                </Frames>
-			</Frame>
-            <!-- Resize Button -->
-			<Button parentKey="ResizeButton" inherits="PanelResizeButtonTemplate">
-				<Anchors>
-					<Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
-				</Anchors>
+				<NormalTexture file="Interface\Buttons\UI-SquareButton-Up"/>
+				<PushedTexture file="Interface\Buttons\UI-SquareButton-Down"/>
+				<DisabledTexture file="Interface\Buttons\UI-SquareButton-Disabled"/>
+				<HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD"/>
 			</Button>
-            <!-- Scroll Scroll List -->
-			<Frame parentKey="ScrollList">
+
+			<Frame parentKey="ScrollBox" inherits="WowScrollBoxList">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.TitleBar" relativePoint="BOTTOMLEFT" x="8" y="-32"/>
-					<Anchor point="BOTTOMRIGHT" x="-9" y="28"/>
+					<Anchor point="TOPLEFT" x="10" y="-58"/>
+					<Anchor point="BOTTOMRIGHT" x="-22" y="26"/>
 				</Anchors>
-				<Frames>
-					<EventFrame parentKey="ScrollBar" inherits="MinimalScrollBar">
-						<Anchors>
-                            <Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-8" y="-5"/>
-                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" y="5"/>
-						</Anchors>
-					</EventFrame>
-					<ScrollFrame parentKey="ScrollBox" inherits="WowScrollBoxList" frameStrata="HIGH">
-						<Anchors>
-                            <Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" y="-4" x="4"/>
-                            <Anchor point="BOTTOMRIGHT" relativeKey="$parent.ScrollBar.Forward" relativePoint="BOTTOMLEFT" x="-3"/>
-						</Anchors>
-					</ScrollFrame>
-				</Frames>
 			</Frame>
-        </Frames>
-    </Frame>
+			<EventFrame parentKey="ScrollBar" inherits="MinimalScrollBar">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.ScrollBox" relativePoint="TOPRIGHT" x="6" y="0"/>
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent.ScrollBox" relativePoint="BOTTOMRIGHT" x="6" y="0"/>
+				</Anchors>
+			</EventFrame>
+
+			<!-- Shown when the list is empty -->
+			<Frame parentKey="EmptyText" setAllPoints="false">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.ScrollBox" relativePoint="TOPLEFT"/>
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent.ScrollBox" relativePoint="BOTTOMRIGHT"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY">
+						<FontString parentKey="Text" inherits="GameFontDisableSmall" justifyH="CENTER">
+							<Anchors>
+								<Anchor point="LEFT" x="10"/>
+								<Anchor point="RIGHT" x="-10"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<!-- Grip at the bottom edge to change the height -->
+			<Button parentKey="ResizeButton" frameLevel="600">
+				<Size x="32" y="12"/>
+				<Anchors>
+					<Anchor point="TOP" relativePoint="BOTTOM" x="0" y="3"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY">
+						<Texture atlas="lootroll-resizehandle" setAllPoints="true"/>
+					</Layer>
+				</Layers>
+			</Button>
+		</Frames>
+	</Frame>
 
 </Ui>

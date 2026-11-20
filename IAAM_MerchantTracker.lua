@@ -3,66 +3,74 @@ local _, IAAM = ...
 --============================================================
 --============================================================
 --
---             Variables
+--             Merchant Tracker
 --
-
-local backdropInfo = {
-    bgFile   = "Interface\\Tooltips\\UI-Tooltip-Background",
-    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-    tile     = true,
-    tileEdge = true,
-    tileSize = 8,
-    edgeSize = 8,
-    insets   = { left = 1, right = 1, top = 1, bottom = 1 },
-}
-
---============================================================
---============================================================
+--  Lists the other IAmAMerchant users known to IAAM.NET:
 --
---             IAAM_MT_Mixin
+--  * Merchants that answered (same internal realm): clickable, with
+--    the number of items for sale. Merchants without items are only
+--    shown with /iaam toggleshowall.
+--  * Below a header, all other addon users, greyed out: still being
+--    checked, or without connection (usually another internal realm).
+--
+--  While the window is shown, players are asked again every minute
+--  (see IAAM.NET.Refresh for the intervals).
 --
 
 IAAM_MT_Mixin = {}
 
+IAAM_MT_Mixin.REFRESH_INTERVAL = 60    -- Seconds between automatic refreshes
+IAAM_MT_Mixin.REFRESH_COOLDOWN = 10    -- Seconds the refresh button stays disabled
+
+IAAM_MT_Mixin.COLOR_MERCHANT = { 0.2, 0.8, 0.3 }
+IAAM_MT_Mixin.COLOR_OTHER    = { 0.4, 0.4, 0.4 }
+
 function IAAM_MT_Mixin:OnLoad()
+    self:SetTitle("Merchants")
     --
-    -- Remove protrait and replace by corner and expanded borders.
+    -- Search box: filter the list by name
     --
-    ButtonFrameTemplate_HidePortrait(self)
+    self.SearchBox.Instructions:SetText("Search names")
+    self.SearchBox:HookScript("OnTextChanged", function()
+        self:UpdateList()
+    end)
     --
-    -- Initialize title bar
+    -- Refresh button: ask all players again
     --
-    self.TitleBar:Init(self)
-    self:SetTitle("Merchant Tracker")
+    self.RefreshButton:SetScript("OnClick", function(Button)
+        IAAM.NET.Refresh(true)
+        Button:Disable()
+        Button.Icon:SetDesaturated(true)
+        C_Timer.After(self.REFRESH_COOLDOWN, function()
+            Button:Enable()
+            Button.Icon:SetDesaturated(false)
+        end)
+    end)
+    self.RefreshButton:SetScript("OnEnter", function(Button)
+        GameTooltip:SetOwner(Button, "ANCHOR_RIGHT")
+        GameTooltip_SetTitle(GameTooltip, "Refresh")
+        GameTooltip_AddNormalLine(GameTooltip, "Ask all IAmAMerchant users again whether they can be reached.", true)
+        GameTooltip:Show()
+    end)
+    self.RefreshButton:SetScript("OnLeave", GameTooltip_Hide)
     --
-    -- Make required initialization to make window resizable
+    -- Resize grip: only the height can be changed
     --
-	self.ResizeButton:Init(self, 0, 0)  -- Frame, MinPanelWidth, MinPanelHeight
+    self.ResizeButton:SetScript("OnMouseDown", function()
+        local AlwaysStartFromMouse = true
+        self:StartSizing("BOTTOM", AlwaysStartFromMouse)
+    end)
+    self.ResizeButton:SetScript("OnMouseUp", function()
+        self:StopMovingOrSizing()
+    end)
     --
-    -- Initialize refresh button
+    -- List
     --
-    self.TitleBar.RefreshButton.Label:SetText("Refresh")
-    --
-    -- Initialize scroll list
-    --
-    self.ScrollView = CreateScrollBoxListLinearView(0, 0, 0, 0, 2)
-    self.ScrollView:SetElementInitializer("IAAM_MT_ScrollListButtonTemplate", IAAM_MT_Mixin.ElementInitializer)
-    ScrollUtil.InitScrollBoxListWithScrollBar(self.ScrollList.ScrollBox, self.ScrollList.ScrollBar, self.ScrollView)
-    -- currently disabled:
-    -- Alternating background coloring for scroll list items
-    --local function OnDataRangeChanged(SortPending)
-    --    local Index = self.ScrollList.ScrollBox:GetDataIndexBegin()
-    --    self.ScrollList.ScrollBox:ForEachFrame(function(Button)
-    --        --Button.Alternate:SetShown(Index % 2 == 1)
-    --        --if (Index % 2 == 0) then
-    --        --    Button:SetBackdropColor(0.1, 0.1, 0.1, 0.5)
-    --        --else
-    --        --    Button:SetBackdropColor(0.3, 0.3, 0.3, 0.5)
-    --        --end
-    --        --Index = Index + 1
-    --    end)
-    --end
-    --self.ScrollList.ScrollBox:RegisterCallback(ScrollBoxListMixin.Event.OnDataRangeChanged, OnDataRangeChanged, self)
+    local View = CreateScrollBoxListLinearView(0, 0, 0, 0, 1)
+    View:SetElementInitializer("IAAM_MT_RowTemplate", function(Row, Data)
+        Row:Init(Data)
+    end)
+    ScrollUtil.InitScrollBoxListWithScrollBar(self.ScrollBox, self.ScrollBar, View)
     --
     -- Keep the list up to date while the window is shown
     --
@@ -71,24 +79,18 @@ function IAAM_MT_Mixin:OnLoad()
             self:UpdateList()
         end
     end
-    self:HookScript("OnShow", self.OnShowList)
-    self:HookScript("OnHide", self.OnHideList)
 end
 
---
--- While the window is shown, other addon users are asked every minute
--- whether they can be reached (see IAAM.NET.Refresh).
---
-function IAAM_MT_Mixin:OnShowList()
+function IAAM_MT_Mixin:OnShow()
     IAAM.NET.AutoPing = true
     self:UpdateList()
     IAAM.NET.Refresh(false)
-    self.RefreshTicker = C_Timer.NewTicker(60, function()
+    self.RefreshTicker = C_Timer.NewTicker(self.REFRESH_INTERVAL, function()
         IAAM.NET.Refresh(false)
     end)
 end
 
-function IAAM_MT_Mixin:OnHideList()
+function IAAM_MT_Mixin:OnHide()
     IAAM.NET.AutoPing = false
     if self.RefreshTicker then
         self.RefreshTicker:Cancel()
@@ -96,73 +98,118 @@ function IAAM_MT_Mixin:OnHideList()
     end
 end
 
+function IAAM_MT_Mixin:OnDragStart()
+    self:StartMoving()
+end
+
+function IAAM_MT_Mixin:OnDragStop()
+    self:StopMovingOrSizing()
+end
+
 --
--- Shows reachable merchants (with items, or all if ShowAll is on), and
--- greyed out the addon users that couldn't be reached yet.
+-- Builds the list: reachable merchants, then a header and all other
+-- addon users. Applies the search text.
 --
 function IAAM_MT_Mixin:UpdateList()
-    local DataProvider = CreateDataProvider()
+    local Search = string.lower(self.SearchBox:GetText() or "")
+    local Merchants, Others = {}, {}
     for _, Peer in ipairs(IAAM.NET.GetSortedPeers()) do
-        if Peer.Reachable ~= true or IAAM_Character.ShowAll == true or (Peer.NumItems or 0) > 0 then
-            DataProvider:Insert({ Player = Peer.Name, NumItems = Peer.NumItems, Reachable = Peer.Reachable })
+        if Search == "" or string.find(string.lower(Peer.Name), Search, 1, true) then
+            if Peer.Reachable == true then
+                if IAAM_Character.ShowAll == true or (Peer.NumItems or 0) > 0 then
+                    table.insert(Merchants, Peer)
+                end
+            else
+                table.insert(Others, Peer)
+            end
         end
     end
-    self.ScrollList.ScrollBox:SetDataProvider(DataProvider, ScrollBoxConstants.RetainScrollPosition)
-end
 
-function IAAM_MT_Mixin.ElementInitializer(Frame, Data)
-    Frame.Data = Data
-    Frame.LeftLabel:SetText(Data.Player)
-    if Data.Reachable == true then
-        Frame.RightLabel:SetText("Item Count: "..(Data.NumItems or 0))
-        Frame.LeftLabel:SetTextColor(1, 1, 1)
-        Frame.RightLabel:SetTextColor(1, 1, 1)
-    elseif Data.Reachable == nil then
-        Frame.RightLabel:SetText("Checking...")
-        Frame.LeftLabel:SetTextColor(0.6, 0.6, 0.6)
-        Frame.RightLabel:SetTextColor(0.6, 0.6, 0.6)
-    else
-        Frame.RightLabel:SetText("No connection")
-        Frame.LeftLabel:SetTextColor(0.5, 0.5, 0.5)
-        Frame.RightLabel:SetTextColor(0.5, 0.5, 0.5)
+    local DataProvider = CreateDataProvider()
+    local Index = 0
+    for _, Peer in ipairs(Merchants) do
+        Index = Index + 1
+        DataProvider:Insert({ Type = "Merchant", Name = Peer.Name, NumItems = Peer.NumItems or 0, Index = Index })
     end
-    Frame:SetBackdrop(backdropInfo)
-    if Data.Reachable == true then
-        Frame:SetBackdropColor(0.3, 0.3, 0.3, 0.5)
-        Frame:SetBackdropBorderColor(0.8, 0.8, 0.8, 1.0)
-    else
-        Frame:SetBackdropColor(0.15, 0.15, 0.15, 0.5)
-        Frame:SetBackdropBorderColor(0.4, 0.4, 0.4, 1.0)
+    if #Others > 0 then
+        DataProvider:Insert({ Type = "Header", Name = "Not reachable" })
+        for _, Peer in ipairs(Others) do
+            Index = Index + 1
+            DataProvider:Insert({ Type = "Other", Name = Peer.Name, Checking = Peer.Reachable == nil, Index = Index })
+        end
     end
+    self.ScrollBox:SetDataProvider(DataProvider, ScrollBoxConstants.RetainScrollPosition)
+
+    --
+    -- Empty list and summary
+    --
+    local IsEmpty = #Merchants == 0 and #Others == 0
+    self.EmptyText:SetShown(IsEmpty)
+    if Search ~= "" then
+        self.EmptyText.Text:SetText("No player matches your search.")
+    else
+        self.EmptyText.Text:SetText("No other IAmAMerchant users online.")
+    end
+    local Status = #Merchants == 1 and "1 merchant" or (#Merchants.." merchants")
+    if #Others > 0 then
+        Status = Status..", "..#Others.." not reachable"
+    end
+    self.Status:SetText(Status)
 end
 
 --============================================================
 --============================================================
 --
---             IAAM_MT_ScrollListButtonMixin
+--             IAAM_MT_RowMixin
 --
 
-IAAM_MT_ScrollListButtonMixin = {}
+IAAM_MT_RowMixin = {}
 
-function IAAM_MT_ScrollListButtonMixin:OnClick()
-    if self.Data.Reachable == true then
-        IAAM.VW.Open(self.Data.Player)
-    end
-end
+function IAAM_MT_RowMixin:Init(Data)
+    self.Data = Data
+    local IsHeader = Data.Type == "Header"
+    self.Stripe:SetShown(not IsHeader)
+    self.StatusBar:SetShown(not IsHeader)
+    self:SetEnabled(not IsHeader)
+    self.LeftLabel:SetText(Data.Name)
 
-function IAAM_MT_ScrollListButtonMixin:OnEnter()
-    local r, g, b, _ = self:GetBackdropColor()
-    self:SetBackdropColor(r, g, b, 1)
-    if self.Data.Reachable == true then
-        SetCursor("BUY_CURSOR")
+    if IsHeader then
+        self.LeftLabel:SetFontObject(GameFontNormalSmall)
+        self.LeftLabel:SetPoint("LEFT", 4, -2)
+        self.RightLabel:SetText("")
         return
     end
-    --
-    -- Explain why the player is greyed out
-    --
+
+    self.LeftLabel:SetFontObject(GameFontHighlightSmall)
+    self.LeftLabel:SetPoint("LEFT", 10, 0)
+    self.Stripe:SetAtlas(Data.Index % 2 == 1 and "auctionhouse-rowstripe-1" or "auctionhouse-rowstripe-2")
+    if Data.Type == "Merchant" then
+        self.StatusBar:SetColorTexture(unpack(IAAM_MT_Mixin.COLOR_MERCHANT))
+        self.RightLabel:SetText(Data.NumItems == 1 and "1 item" or (Data.NumItems.." items"))
+        self.LeftLabel:SetTextColor(1, 1, 1)
+        self.RightLabel:SetTextColor(1, 0.82, 0)
+    else
+        self.StatusBar:SetColorTexture(unpack(IAAM_MT_Mixin.COLOR_OTHER))
+        self.RightLabel:SetText(Data.Checking and "checking..." or "no connection")
+        self.LeftLabel:SetTextColor(0.5, 0.5, 0.5)
+        self.RightLabel:SetTextColor(0.5, 0.5, 0.5)
+    end
+end
+
+function IAAM_MT_RowMixin:OnClick()
+    if self.Data.Type == "Merchant" then
+        IAAM.VW.Open(self.Data.Name)
+    end
+end
+
+function IAAM_MT_RowMixin:OnEnter()
+    local Data = self.Data
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-    GameTooltip_SetTitle(GameTooltip, self.Data.Player)
-    if self.Data.Reachable == nil then
+    GameTooltip_SetTitle(GameTooltip, Data.Name)
+    if Data.Type == "Merchant" then
+        GameTooltip_AddNormalLine(GameTooltip, "Click to see the items for sale.", true)
+        SetCursor("BUY_CURSOR")
+    elseif Data.Checking then
         GameTooltip_AddNormalLine(GameTooltip, "Uses IAmAMerchant. Checking whether this player can be reached...", true)
     else
         GameTooltip_AddNormalLine(GameTooltip, "Uses IAmAMerchant, but didn't answer.", true)
@@ -171,58 +218,7 @@ function IAAM_MT_ScrollListButtonMixin:OnEnter()
     GameTooltip:Show()
 end
 
-function IAAM_MT_ScrollListButtonMixin:OnLeave()
-    local r, g, b, _ = self:GetBackdropColor()
-    self:SetBackdropColor(r, g, b, 0.5)
-    SetCursor(nil)
+function IAAM_MT_RowMixin:OnLeave()
     GameTooltip:Hide()
-end
-
---============================================================
---============================================================
---
---             IAAM_MT_RefreshButtonMixin
---
---  Asks all addon users again whether they can be reached. Disabled
---  for 10 seconds after a click.
---
-
-IAAM_MT_RefreshButtonMixin = {}
-
-function IAAM_MT_RefreshButtonMixin:OnClick(Button, Down)
-    if self.Enabled ~= false then
-        IAAM.NET.Refresh(true)
-        self:SetEnabled(false)
-        self.Label:SetAlpha(0.2)
-        self.Enabled = false
-        C_Timer.After(10, function()
-            self:SetEnabled(true)
-            self.Enabled = true
-            self.Label:SetAlpha(1)
-        end)
-    end
-end
-
---============================================================
---============================================================
---
---             IAAM_MT_MenuButtonMixin
---
-
-IAAM_MT_MenuButtonMixin = {}
-
-function IAAM_MT_MenuButtonMixin:OnEnter()
-	self.MouseoverOverlay:Show()
-end
-
-function IAAM_MT_MenuButtonMixin:OnLeave()
-	self.MouseoverOverlay:Hide()
-end
-
-function IAAM_MT_MenuButtonMixin:OnMouseDown()
-    self:AdjustPointsOffset(1, -1)
-end
-
-function IAAM_MT_MenuButtonMixin:OnMouseUp()
-    self:AdjustPointsOffset(-1, 1)
+    SetCursor(nil)
 end
