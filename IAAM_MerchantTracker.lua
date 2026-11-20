@@ -9,7 +9,8 @@ local _, IAAM = ...
 --
 --  * Merchants that answered (same internal realm): clickable, with
 --    the number of items for sale. Merchants without items are only
---    shown with /iaam toggleshowall.
+--    shown with /iaam toggleshowall; otherwise the summary line below
+--    the list counts them.
 --  * Below a header, all other addon users, greyed out: still being
 --    checked, or without connection (usually another internal realm).
 --
@@ -112,12 +113,14 @@ end
 --
 function IAAM_MT_Mixin:UpdateList()
     local Search = string.lower(self.SearchBox:GetText() or "")
-    local Merchants, Others = {}, {}
+    local Merchants, Others, WithoutItems = {}, {}, 0
     for _, Peer in ipairs(IAAM.NET.GetSortedPeers()) do
         if Search == "" or string.find(string.lower(Peer.Name), Search, 1, true) then
             if Peer.Reachable == true then
                 if IAAM_Character.ShowAll == true or (Peer.NumItems or 0) > 0 then
                     table.insert(Merchants, Peer)
+                else
+                    WithoutItems = WithoutItems + 1
                 end
             else
                 table.insert(Others, Peer)
@@ -151,6 +154,10 @@ function IAAM_MT_Mixin:UpdateList()
         self.EmptyText.Text:SetText("No other IAmAMerchant users online.")
     end
     local Status = #Merchants == 1 and "1 merchant" or (#Merchants.." merchants")
+    if WithoutItems > 0 then
+        -- Hidden unless /iaam toggleshowall is on
+        Status = Status..", "..WithoutItems.." without items"
+    end
     if #Others > 0 then
         Status = Status..", "..#Others.." not reachable"
     end
